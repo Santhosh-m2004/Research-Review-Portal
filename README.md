@@ -17,5 +17,4 @@ Technologies Used
 - Database: SQLite
 - Other Tools: Python libraries such as Flask for the web framework
 
-1. Clone the repository:
-   git clone https://github.com/Santhosh-m2004/Research-Review-Portal.git
+
