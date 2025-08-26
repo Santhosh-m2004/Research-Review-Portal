@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found - Research Paper Submission Portal{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>404 - Page Not Found</h2>
+            <p>The page you're looking for doesn't exist.</p>
+        </div>
+        <div class="auth-body" style="text-align: center;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ffc107; margin-bottom: 20px;"></i>
+            <p>We couldn't find the page you were looking for. It might have been moved or deleted.</p>
+            <div style="margin-top: 30px;">
+                <a href="{{ url_for('user_dashboard') if session.logged_in else url_for('login') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

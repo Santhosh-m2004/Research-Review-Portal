@@ -1,0 +1,87 @@
+/* Admin-specific styles */
+.admin-tools {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.admin-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.user-management table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.user-management th,
+.user-management td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.user-management th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.role-admin {
+    background-color: #e7f5ff;
+    color: #0c6dfd;
+}
+
+.role-user {
+    background-color: #e6f7ee;
+    color: #0ca678;
+}
+
+.system-health {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.health-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 15px;
+    text-align: center;
+}
+
+.health-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.health-label {
+    color: var(--gray-color);
+    font-size: 0.9rem;
+}
+
+.health-good {
+    color: #40c057;
+}
+
+.health-warning {
+    color: #fab005;
+}
+
+.health-danger {
+    color: #fa5252;
+}
