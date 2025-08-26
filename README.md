@@ -18,8 +18,11 @@ Technologies Used
 - Database: MongoDB Atlas
 - Other Tools: Python libraries such as Flask for the web framework
 
+--- 
+## File Structure 
 
-File Structure 
+```
+
 Research-Review-Portal/
 ├── app.py                 # Main Flask application
 ├── requirements.txt       # Python dependencies
@@ -38,3 +41,7 @@ Research-Review-Portal/
     ├── profile.html      # User profile
     ├── notifications.html # Notifications page
     └── 404.html          # 404 error page
+
+```
+
+---
