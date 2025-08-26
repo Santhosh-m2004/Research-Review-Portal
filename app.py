@@ -8,15 +8,23 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 from bson.objectid import ObjectId
 from bson import errors as bson_errors
+from dotenv import load_dotenv  # ✅ Added to load .env
+
+# Load environment variables from .env
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "537a8f91370423ceb37ab9b8496da4fd035e59e47afd33f635e2fb376f736860"
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
+
+# Load config from .env
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
 
 # MongoDB Atlas connection
-client = MongoClient("mongodb+srv://dbUser:Santu%4012345@cluster0.75o1h.mongodb.net/research_portal?retryWrites=true&w=majority&appName=Cluster0")
-db = client.research_portal
+mongo_uri = os.getenv('MONGO_URI')
+client = MongoClient(mongo_uri)
+db = client.get_database("research_portal")
+
 users_collection = db.users
 documents_collection = db.documents
 notifications_collection = db.notifications
