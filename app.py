@@ -8,26 +8,29 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 from bson.objectid import ObjectId
 from bson import errors as bson_errors
-from dotenv import load_dotenv  # ✅ Added to load .env
+from dotenv import load_dotenv
 
-# Load environment variables from .env
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 
-# Load config from .env
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+# Flask Configurations
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_change_in_production')
 app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))
+app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # Default 16 MB
 
-# MongoDB Atlas connection
+# MongoDB Atlas connection from .env
 mongo_uri = os.getenv('MONGO_URI')
-client = MongoClient(mongo_uri)
-db = client.get_database("research_portal")
+if not mongo_uri:
+    raise ValueError("⚠️ MONGO_URI is not set in .env file")
 
+client = MongoClient(mongo_uri)
+db = client.research_portal
 users_collection = db.users
 documents_collection = db.documents
 notifications_collection = db.notifications
+assignments_collection = db.assignments
 
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt'}
 
@@ -48,7 +51,25 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         if 'logged_in' not in session or session.get('role') != 'admin':
             flash('Admin access required.', 'error')
-            return redirect(url_for('user_dashboard'))
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def teacher_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session or session.get('role') != 'teacher':
+            flash('Teacher access required.', 'error')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def student_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session or session.get('role') != 'student':
+            flash('Student access required.', 'error')
+            return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -62,11 +83,28 @@ def add_notification(user_id, message, category='info'):
     }
     notifications_collection.insert_one(notification)
 
+# Create default admin if not exists
+def create_default_admin():
+    admin_exists = users_collection.find_one({'username': 'admin', 'role': 'admin'})
+    if not admin_exists:
+        hashed_password = generate_password_hash('admin123')
+        admin_user = {
+            'username': 'admin',
+            'password': hashed_password,
+            'email': 'admin@researchportal.com',
+            'full_name': 'System Administrator',
+            'role': 'admin',
+            'created_at': datetime.utcnow(),
+            'profile_picture': None
+        }
+        users_collection.insert_one(admin_user)
+        print("Default admin created: username=admin, password=admin123")
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'logged_in' in session:
         flash('You are already logged in.', 'info')
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('dashboard'))
         
     if request.method == 'POST':
         username = request.form['username']
@@ -74,7 +112,7 @@ def register():
         confirm_password = request.form['confirm_password']
         email = request.form['email']
         full_name = request.form['full_name']
-        role = request.form['role']
+        role = request.form['role']  # Only 'student' or 'teacher' allowed
         
         # Validation
         if not username or not password or not email or not full_name:
@@ -87,6 +125,10 @@ def register():
             
         if len(password) < 6:
             flash('Password must be at least 6 characters.', 'error')
+            return render_template('register.html')
+            
+        if role not in ['student', 'teacher']:
+            flash('Invalid role selected.', 'error')
             return render_template('register.html')
         
         # Check if user already exists
@@ -119,7 +161,7 @@ def register():
 def login():
     if 'logged_in' in session:
         flash('You are already logged in.', 'info')
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('dashboard'))
         
     if request.method == 'POST':
         username = request.form['username']
@@ -142,10 +184,7 @@ def login():
             # Add login notification
             add_notification(session['user_id'], f'Successful login from {request.remote_addr}', 'info')
             
-            if user['role'] == 'admin':
-                return redirect(url_for('admin_dashboard'))
-            else:
-                return redirect(url_for('user_dashboard'))
+            return redirect(url_for('dashboard'))
         else:
             flash('Invalid username/email or password.', 'error')
     
@@ -162,107 +201,127 @@ def logout():
 @app.route('/')
 def index():
     if 'logged_in' in session:
-        if session['role'] == 'admin':
-            return redirect(url_for('admin_dashboard'))
-        else:
-            return redirect(url_for('user_dashboard'))
+        return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
-# In your dashboard routes, modify the document retrieval to include the string ID
-@app.route('/user_dashboard')
+@app.route('/dashboard')
 @login_required
-def user_dashboard():
-    if session['role'] != 'user':
+def dashboard():
+    role = session.get('role')
+    if role == 'admin':
         return redirect(url_for('admin_dashboard'))
-    
-    user_id = session['user_id']
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-    skip = (page - 1) * per_page
-    
-    # Get documents with pagination and convert ObjectId to string
-    documents = list(documents_collection.find({'user_id': user_id}).sort('uploaded_at', -1).skip(skip).limit(per_page))
-    
-    # Add string representation of _id for template usage
-    for doc in documents:
-        doc['id'] = str(doc['_id'])
-    
-    total_documents = documents_collection.count_documents({'user_id': user_id})
-    
-    # Get unread notifications
-    unread_notifications = notifications_collection.count_documents({
-        'user_id': user_id,
-        'read': False
-    })
-    
-    return render_template('user_dashboard.html', 
-                         documents=documents,
-                         page=page,
-                         per_page=per_page,
-                         total_documents=total_documents,
-                         unread_notifications=unread_notifications)
+    elif role == 'teacher':
+        return redirect(url_for('teacher_dashboard'))
+    else:
+        return redirect(url_for('student_dashboard'))
 
-# Do the same for admin_dashboard
-@app.route('/admin_dashboard')
+@app.route('/admin/dashboard')
 @login_required
 @admin_required
 def admin_dashboard():
-    page = request.args.get('page', 1, type=int)
-    search_query = request.args.get('q', '')
-    per_page = 10
-    skip = (page - 1) * per_page
-    
-    # Build query for search
-    query = {}
-    if search_query:
-        query['$or'] = [
-            {'name': {'$regex': search_query, '$options': 'i'}},
-            {'paper_name': {'$regex': search_query, '$options': 'i'}},
-            {'feedback': {'$regex': search_query, '$options': 'i'}}
-        ]
-    
-    # Get documents with pagination and search
-    documents = list(documents_collection.find(query).sort('uploaded_at', -1).skip(skip).limit(per_page))
-    
-    # Add string representation of _id for template usage
-    for doc in documents:
-        doc['id'] = str(doc['_id'])
-    
-    total_documents = documents_collection.count_documents(query)
-    
-    # Get user statistics
+    # Get statistics
     user_stats = {
         'total_users': users_collection.count_documents({}),
         'total_admins': users_collection.count_documents({'role': 'admin'}),
-        'total_regular_users': users_collection.count_documents({'role': 'user'})
+        'total_teachers': users_collection.count_documents({'role': 'teacher'}),
+        'total_students': users_collection.count_documents({'role': 'student'})
     }
     
-    # Get document statistics
     doc_stats = {
         'total_documents': documents_collection.count_documents({}),
         'documents_with_feedback': documents_collection.count_documents({'feedback': {'$exists': True, '$ne': None}}),
         'documents_pending_feedback': documents_collection.count_documents({'feedback': {'$exists': False}})
     }
     
+    # Get recent documents
+    recent_documents = list(documents_collection.find().sort('uploaded_at', -1).limit(5))
+    for doc in recent_documents:
+        doc['id'] = str(doc['_id'])
+        # Get student info
+        student = users_collection.find_one({'_id': ObjectId(doc['user_id'])})
+        doc['student_name'] = student['full_name'] if student else 'Unknown'
+    
+    # Get all teachers and students for assignment
+    teachers = list(users_collection.find({'role': 'teacher'}))
+    students = list(users_collection.find({'role': 'student'}))
+    
+    # Get current assignments
+    assignments = list(assignments_collection.find())
+    for assignment in assignments:
+        assignment['id'] = str(assignment['_id'])
+        # Get teacher and student info
+        teacher = users_collection.find_one({'_id': ObjectId(assignment['teacher_id'])})
+        student = users_collection.find_one({'_id': ObjectId(assignment['student_id'])})
+        assignment['teacher_name'] = teacher['full_name'] if teacher else 'Unknown'
+        assignment['student_name'] = student['full_name'] if student else 'Unknown'
+    
     return render_template('admin_dashboard.html', 
-                         documents=documents,
-                         page=page,
-                         per_page=per_page,
-                         total_documents=total_documents,
-                         search_query=search_query,
                          user_stats=user_stats,
-                         doc_stats=doc_stats)
+                         doc_stats=doc_stats,
+                         recent_documents=recent_documents,
+                         teachers=teachers,
+                         students=students,
+                         assignments=assignments)
+
+@app.route('/teacher/dashboard')
+@login_required
+@teacher_required
+def teacher_dashboard():
+    teacher_id = session['user_id']
+    
+    # Get assigned students
+    assigned_students = list(assignments_collection.find({'teacher_id': teacher_id}))
+    student_ids = [assignment['student_id'] for assignment in assigned_students]  # keep as strings
+    
+    # Get documents from assigned students
+    documents = list(documents_collection.find({'user_id': {'$in': student_ids}}).sort('uploaded_at', -1))
+    for doc in documents:
+        doc['id'] = str(doc['_id'])
+        # Get student info
+        student = users_collection.find_one({'_id': ObjectId(doc['user_id'])})
+        doc['student_name'] = student['full_name'] if student else 'Unknown'
+    
+    # Get list of assigned students with details
+    students_with_details = []
+    for assignment in assigned_students:
+        student = users_collection.find_one({'_id': ObjectId(assignment['student_id'])})
+        if student:
+            student['assignment_id'] = str(assignment['_id'])
+            students_with_details.append(student)
+    
+    return render_template('teacher_dashboard.html', 
+                         documents=documents,
+                         students=students_with_details)
+
+
+@app.route('/student/dashboard')
+@login_required
+@student_required
+def student_dashboard():
+    user_id = session['user_id']
+    
+    # Get documents
+    documents = list(documents_collection.find({'user_id': user_id}).sort('uploaded_at', -1))
+    for doc in documents:
+        doc['id'] = str(doc['_id'])
+    
+    # Check if student has an assigned teacher
+    assignment = assignments_collection.find_one({'student_id': user_id})
+    teacher = None
+    if assignment:
+        teacher = users_collection.find_one({'_id': ObjectId(assignment['teacher_id'])})
+    
+    return render_template('student_dashboard.html', 
+                         documents=documents,
+                         teacher=teacher)
 
 @app.route('/upload', methods=['POST'])
 @login_required
+@student_required
 def upload():
-    if session['role'] != 'user':
-        flash('Only regular users can upload documents.', 'error')
-        return redirect(url_for('admin_dashboard'))
-    
     if 'document_submission' not in request.files:
         flash('No file selected.', 'error')
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('student_dashboard'))
     
     file = request.files['document_submission']
     if file and allowed_file(file.filename):
@@ -288,7 +347,8 @@ def upload():
             'feedback': None,
             'status': 'submitted',
             'uploaded_at': datetime.utcnow(),
-            'reviewed_at': None
+            'reviewed_at': None,
+            'reviewed_by': None
         }
         
         documents_collection.insert_one(document)
@@ -297,14 +357,14 @@ def upload():
         add_notification(user_id, f'Document "{paper_name}" uploaded successfully', 'success')
         
         flash('Document uploaded successfully.', 'success')
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('student_dashboard'))
     else:
         flash('Invalid file type. Allowed types: pdf, doc, docx, txt.', 'error')
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('student_dashboard'))
 
 @app.route('/feedback/<doc_id>', methods=['POST'])
 @login_required
-@admin_required
+@teacher_required
 def feedback(doc_id):
     try:
         feedback_text = request.form['feedback']
@@ -323,12 +383,12 @@ def feedback(doc_id):
         )
         
         if result.modified_count:
-            # Get the document to notify the user
+            # Get the document to notify the student
             document = documents_collection.find_one({'_id': ObjectId(doc_id)})
             if document:
                 add_notification(
                     document['user_id'], 
-                    f'Your document "{document["paper_name"]}" has been reviewed', 
+                    f'Your document "{document["paper_name"]}" has been reviewed by your teacher', 
                     'info'
                 )
             
@@ -340,6 +400,97 @@ def feedback(doc_id):
         flash('Invalid document ID.', 'error')
     except Exception as e:
         flash(f'Error submitting feedback: {str(e)}', 'error')
+    
+    return redirect(url_for('teacher_dashboard'))
+
+@app.route('/assign/teacher', methods=['POST'])
+@login_required
+@admin_required
+def assign_teacher():
+    try:
+        teacher_id = request.form['teacher_id']
+        student_id = request.form['student_id']
+        
+        # Check if assignment already exists
+        existing_assignment = assignments_collection.find_one({
+            'teacher_id': teacher_id,
+            'student_id': student_id
+        })
+        
+        if existing_assignment:
+            flash('This student is already assigned to this teacher.', 'warning')
+            return redirect(url_for('admin_dashboard'))
+        
+        # Create assignment
+        assignment = {
+            'teacher_id': teacher_id,
+            'student_id': student_id,
+            'assigned_at': datetime.utcnow(),
+            'assigned_by': session['user_id']
+        }
+        
+        assignments_collection.insert_one(assignment)
+        
+        # Add notification to both teacher and student
+        teacher = users_collection.find_one({'_id': ObjectId(teacher_id)})
+        student = users_collection.find_one({'_id': ObjectId(student_id)})
+        
+        if teacher:
+            add_notification(
+                teacher_id, 
+                f'You have been assigned to student {student["full_name"] if student else "Unknown"}', 
+                'info'
+            )
+        
+        if student:
+            add_notification(
+                student_id, 
+                f'You have been assigned to teacher {teacher["full_name"] if teacher else "Unknown"}', 
+                'info'
+            )
+        
+        flash('Teacher assigned to student successfully.', 'success')
+        
+    except Exception as e:
+        flash(f'Error assigning teacher: {str(e)}', 'error')
+    
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/remove/assignment/<assignment_id>', methods=['POST'])
+@login_required
+@admin_required
+def remove_assignment(assignment_id):
+    try:
+        assignment = assignments_collection.find_one({'_id': ObjectId(assignment_id)})
+        if assignment:
+            # Add notification to both teacher and student
+            teacher = users_collection.find_one({'_id': ObjectId(assignment['teacher_id'])})
+            student = users_collection.find_one({'_id': ObjectId(assignment['student_id'])})
+            
+            assignments_collection.delete_one({'_id': ObjectId(assignment_id)})
+            
+            if teacher:
+                add_notification(
+                    assignment['teacher_id'], 
+                    f'Your assignment with student {student["full_name"] if student else "Unknown"} has been removed', 
+                    'info'
+                )
+            
+            if student:
+                add_notification(
+                    assignment['student_id'], 
+                    f'Your assignment with teacher {teacher["full_name"] if teacher else "Unknown"} has been removed', 
+                    'info'
+                )
+            
+            flash('Assignment removed successfully.', 'success')
+        else:
+            flash('Assignment not found.', 'error')
+            
+    except bson_errors.InvalidId:
+        flash('Invalid assignment ID.', 'error')
+    except Exception as e:
+        flash(f'Error removing assignment: {str(e)}', 'error')
     
     return redirect(url_for('admin_dashboard'))
 
@@ -359,7 +510,14 @@ def profile():
     # Remove password from user data
     user.pop('password', None)
     
-    return render_template('profile.html', user=user)
+    # For students, get assigned teacher
+    teacher = None
+    if session['role'] == 'student':
+        assignment = assignments_collection.find_one({'student_id': session['user_id']})
+        if assignment:
+            teacher = users_collection.find_one({'_id': ObjectId(assignment['teacher_id'])})
+    
+    return render_template('profile.html', user=user, teacher=teacher)
 
 @app.route('/update_profile', methods=['POST'])
 @login_required
@@ -454,12 +612,12 @@ def delete_document(doc_id):
         
         if not document:
             flash('Document not found.', 'error')
-            return redirect(url_for('user_dashboard'))
+            return redirect(url_for('dashboard'))
             
         # Check if user owns the document or is admin
         if document['user_id'] != session['user_id'] and session['role'] != 'admin':
             flash('You are not authorized to delete this document.', 'error')
-            return redirect(url_for('user_dashboard'))
+            return redirect(url_for('dashboard'))
         
         # Delete the file
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], document['document_submission'])
@@ -478,8 +636,10 @@ def delete_document(doc_id):
     
     if session['role'] == 'admin':
         return redirect(url_for('admin_dashboard'))
+    elif session['role'] == 'teacher':
+        return redirect(url_for('teacher_dashboard'))
     else:
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('student_dashboard'))
 
 @app.errorhandler(404)
 def not_found(error):
@@ -490,74 +650,11 @@ def too_large(error):
     flash('File too large. Maximum size is 16MB.', 'error')
     return redirect(request.url)
 
-
-@app.route('/admin/users')
-@login_required
-@admin_required
-def admin_users():
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-    skip = (page - 1) * per_page
-    
-    # Get users with pagination
-    users = list(users_collection.find().sort('created_at', -1).skip(skip).limit(per_page))
-    total_users = users_collection.count_documents({})
-    
-    return render_template('admin_users.html', 
-                         users=users,
-                         page=page,
-                         per_page=per_page,
-                         total_users=total_users)
-
-@app.route('/admin/update_user_role', methods=['POST'])
-@login_required
-@admin_required
-def admin_update_user_role():
-    try:
-        data = request.get_json()
-        user_id = data['user_id']
-        new_role = data['role']
-        
-        # Update user role
-        result = users_collection.update_one(
-            {'_id': ObjectId(user_id)},
-            {'$set': {'role': new_role}}
-        )
-        
-        if result.modified_count:
-            return jsonify({'success': True})
-        else:
-            return jsonify({'success': False, 'message': 'User not found'})
-            
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
-
-@app.route('/admin/delete_user/<user_id>', methods=['POST'])
-@login_required
-@admin_required
-def admin_delete_user(user_id):
-    try:
-        # Cannot delete yourself
-        if user_id == session['user_id']:
-            flash('You cannot delete your own account.', 'error')
-            return redirect(url_for('admin_users'))
-        
-        # Delete user
-        result = users_collection.delete_one({'_id': ObjectId(user_id)})
-        
-        if result.deleted_count:
-            # Also delete user's documents
-            documents_collection.delete_many({'user_id': user_id})
-            flash('User deleted successfully.', 'success')
-        else:
-            flash('User not found.', 'error')
-            
-    except Exception as e:
-        flash('Error deleting user: ' + str(e), 'error')
-    
-    return redirect(url_for('admin_users'))
-
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
+    
+    # Create default admin if not exists
+    create_default_admin()
+    
     app.run(debug=True)

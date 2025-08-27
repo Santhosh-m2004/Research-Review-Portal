@@ -1,87 +1,45 @@
 /* Admin-specific styles */
-.admin-tools {
+.teacher-info {
     display: flex;
+    align-items: center;
     gap: 15px;
-    margin-bottom: 20px;
 }
 
-.admin-card {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: 20px;
-    margin-bottom: 20px;
+.teacher-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
 }
 
-.user-management table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.user-management th,
-.user-management td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--light-gray);
-}
-
-.user-management th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-}
-
-.role-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.role-admin {
-    background-color: #e7f5ff;
-    color: #0c6dfd;
-}
-
-.role-user {
-    background-color: #e6f7ee;
-    color: #0ca678;
-}
-
-.system-health {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.health-card {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: 15px;
-    text-align: center;
-}
-
-.health-value {
-    font-size: 1.8rem;
-    font-weight: 700;
+.teacher-details h3 {
     margin-bottom: 5px;
 }
 
-.health-label {
+.teacher-details p {
     color: var(--gray-color);
-    font-size: 0.9rem;
+    margin: 0;
 }
 
-.health-good {
-    color: #40c057;
+.assignment-actions {
+    display: flex;
+    gap: 10px;
 }
 
-.health-warning {
-    color: #fab005;
+.assignment-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 15px;
+    align-items: end;
 }
 
-.health-danger {
-    color: #fa5252;
+@media (max-width: 768px) {
+    .assignment-form {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}User Dashboard - Research Paper Submission Portal{% endblock %}
+{% block title %}Student Dashboard - Research Paper Submission Portal{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
@@ -7,7 +7,7 @@
 {% block content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1 class="dashboard-title">User Dashboard</h1>
+        <h1 class="dashboard-title">Student Dashboard</h1>
         <div class="header-actions">
             <button class="btn btn-primary" onclick="document.getElementById('uploadForm').scrollIntoView({behavior: 'smooth'})">
                 <i class="fas fa-upload"></i> Upload New Document
@@ -15,24 +15,37 @@
         </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value">{{ documents|length }}</div>
-            <div class="stat-label">Total Documents</div>
+    {% if teacher %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Your Assigned Teacher</h2>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {{ documents|selectattr('feedback', 'defined')|selectattr('feedback', 'ne', None)|list|length }}
+        <div class="card-body">
+            <div class="teacher-info">
+                <div class="teacher-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="teacher-details">
+                    <h3>{{ teacher.full_name }}</h3>
+                    <p>{{ teacher.email }}</p>
+                </div>
             </div>
-            <div class="stat-label">Reviewed Documents</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">
-                {{ documents|rejectattr('feedback', 'defined')|list|length + documents|selectattr('feedback', 'equalto', None)|list|length }}
-            </div>
-            <div class="stat-label">Pending Review</div>
         </div>
     </div>
+    {% else %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Teacher Assignment</h2>
+        </div>
+        <div class="card-body">
+            <div class="empty-state">
+                <i class="fas fa-user-tie empty-state-icon"></i>
+                <h3>No teacher assigned yet</h3>
+                <p>The administrator will assign a teacher to you soon.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="card" id="uploadForm">
         <div class="card-header">
@@ -75,7 +88,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">Submitted Documents</h2>
+            <h2 class="card-title">Your Submitted Documents</h2>
         </div>
         <div class="card-body">
             {% if documents %}
@@ -139,29 +152,6 @@
                     </tbody>
                 </table>
             </div>
-            
-            {% if total_documents > per_page %}
-            <nav class="pagination">
-                {% if page > 1 %}
-                <a href="{{ url_for('user_dashboard', page=page-1) }}" class="page-link">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-                {% endif %}
-                
-                {% for p in range(1, (total_documents // per_page) + 2) %}
-                {% if p >= page - 2 and p <= page + 2 %}
-                <a href="{{ url_for('user_dashboard', page=p) }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
-                {% endif %}
-                {% endfor %}
-                
-                {% if page < (total_documents // per_page) + 1 %}
-                <a href="{{ url_for('user_dashboard', page=page+1) }}" class="page-link">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                {% endif %}
-            </nav>
-            {% endif %}
-            
             {% else %}
             <div class="empty-state">
                 <i class="fas fa-file-upload empty-state-icon"></i>

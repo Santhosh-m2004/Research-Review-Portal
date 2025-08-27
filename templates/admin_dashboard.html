@@ -2,20 +2,7 @@
 {% block title %}Admin Dashboard - Research Paper Submission Portal{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-<style>
-.feedback-form {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-}
-.feedback-input {
-    flex: 1;
-    min-width: 200px;
-}
-.status-select {
-    width: 150px;
-}
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -37,8 +24,12 @@
             <div class="stat-label">Administrators</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{{ user_stats.total_regular_users }}</div>
-            <div class="stat-label">Regular Users</div>
+            <div class="stat-value">{{ user_stats.total_teachers }}</div>
+            <div class="stat-label">Teachers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ user_stats.total_students }}</div>
+            <div class="stat-label">Students</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ doc_stats.total_documents }}</div>
@@ -56,40 +47,103 @@
 
     <div class="card">
         <div class="card-header">
-            <h2 class="card-title">All Documents</h2>
-            <div class="header-actions">
-                <form action="{{ url_for('admin_dashboard') }}" method="GET" class="search-box">
-                    <input type="text" name="q" value="{{ search_query }}" class="search-input" placeholder="Search documents...">
-                    <button type="submit" class="search-btn">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
+            <h2 class="card-title">Assign Teacher to Student</h2>
         </div>
         <div class="card-body">
-            {% if documents %}
+            <form action="{{ url_for('assign_teacher') }}" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="teacher_id" class="form-label">Teacher</label>
+                        <select name="teacher_id" id="teacher_id" class="form-select" required>
+                            <option value="">Select a Teacher</option>
+                            {% for teacher in teachers %}
+                            <option value="{{ teacher._id }}">{{ teacher.full_name }} ({{ teacher.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="student_id" class="form-label">Student</label>
+                        <select name="student_id" id="student_id" class="form-select" required>
+                            <option value="">Select a Student</option>
+                            {% for student in students %}
+                            <option value="{{ student._id }}">{{ student.full_name }} ({{ student.username }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-link"></i> Assign Teacher
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Current Assignments</h2>
+        </div>
+        <div class="card-body">
+            {% if assignments %}
             <div class="table-container">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>User</th>
-                            <th>Paper Title</th>
-                            <th>Description</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th>Document</th>
-                            <th>Feedback</th>
+                            <th>Teacher</th>
+                            <th>Student</th>
+                            <th>Assigned On</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for document in documents %}
+                        {% for assignment in assignments %}
                         <tr>
-                            <td>{{ document.id }}</td>
-                            <td>{{ document.name }}</td>
+                            <td>{{ assignment.teacher_name }}</td>
+                            <td>{{ assignment.student_name }}</td>
+                            <td>{{ assignment.assigned_at.strftime('%Y-%m-%d') if assignment.assigned_at else 'N/A' }}</td>
+                            <td>
+                                <form action="{{ url_for('remove_assignment', assignment_id=assignment.id) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="action-btn action-delete" onclick="return confirm('Are you sure you want to remove this assignment?')">
+                                        <i class="fas fa-unlink"></i> Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-link empty-state-icon"></i>
+                <h3>No assignments yet</h3>
+                <p>Assign teachers to students using the form above.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Recent Document Submissions</h2>
+        </div>
+        <div class="card-body">
+            {% if recent_documents %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Paper Title</th>
+                            <th>Submitted On</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in recent_documents %}
+                        <tr>
+                            <td>{{ document.student_name }}</td>
                             <td>{{ document.paper_name }}</td>
-                            <td>{{ document.description or 'No description' }}</td>
                             <td>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}</td>
                             <td>
                                 <span class="status-badge status-{{ document.status or 'submitted' }}">
@@ -100,29 +154,9 @@
                                 <a href="/uploads/{{ document.document_submission }}" target="_blank" class="action-btn action-view">
                                     <i class="fas fa-eye"></i> View
                                 </a>
-                            </td>
-                            <td>
-                                {% if document.feedback %}
-                                <div class="feedback-text">{{ document.feedback }}</div>
-                                {% else %}
-                                <span class="text-muted">Not provided</span>
-                                {% endif %}
-                            </td>
-                            <!-- Replace the existing feedback form in admin_dashboard.html with this -->
-                            <td>
-                                <form action="{{ url_for('feedback', doc_id=document._id) }}" method="POST" class="feedback-form">
-                                    <input type="text" name="feedback" class="form-control feedback-input" 
-                                        placeholder="Enter feedback" value="{{ document.feedback or '' }}" required>
-                                    <select name="status" class="form-select status-select">
-                                        <option value="submitted" {% if document.status == 'submitted' %}selected{% endif %}>Submitted</option>
-                                        <option value="reviewed" {% if document.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
-                                        <option value="revised" {% if document.status == 'revised' %}selected{% endif %}>Needs Revision</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                </form>
-                                <form action="{{ url_for('delete_document', doc_id=document._id) }}" method="POST" style="margin-top: 5px;">
+                                <form action="/delete_document/{{ document.id }}" method="POST" style="display: inline;">
                                     <button type="submit" class="action-btn action-delete" onclick="return confirm('Are you sure you want to delete this document?')">
-                                        <i class="fas fa-trash"></i> Delete
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
                             </td>
@@ -131,34 +165,11 @@
                     </tbody>
                 </table>
             </div>
-            
-            {% if total_documents > per_page %}
-            <nav class="pagination">
-                {% if page > 1 %}
-                <a href="{{ url_for('admin_dashboard', page=page-1, q=search_query) }}" class="page-link">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-                {% endif %}
-                
-                {% for p in range(1, (total_documents // per_page) + 2) %}
-                {% if p >= page - 2 and p <= page + 2 %}
-                <a href="{{ url_for('admin_dashboard', page=p, q=search_query) }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
-                {% endif %}
-                {% endfor %}
-                
-                {% if page < (total_documents // per_page) + 1 %}
-                <a href="{{ url_for('admin_dashboard', page=page+1, q=search_query) }}" class="page-link">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-                {% endif %}
-            </nav>
-            {% endif %}
-            
             {% else %}
             <div class="empty-state">
                 <i class="fas fa-file-alt empty-state-icon"></i>
-                <h3>No documents found</h3>
-                <p>{% if search_query %}No documents match your search criteria.{% else %}No documents have been submitted yet.{% endif %}</p>
+                <h3>No documents submitted yet</h3>
+                <p>When students upload documents, they will appear here.</p>
             </div>
             {% endif %}
         </div>

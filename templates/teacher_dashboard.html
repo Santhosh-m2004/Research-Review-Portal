@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard - Research Paper Submission Portal{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Teacher Dashboard</h1>
+        <div class="header-actions">
+            <span class="text-muted">Welcome, {{ session.full_name }}</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Your Assigned Students</h2>
+        </div>
+        <div class="card-body">
+            {% if students %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.full_name }}</td>
+                            <td>{{ student.username }}</td>
+                            <td>{{ student.email }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-user-graduate empty-state-icon"></i>
+                <h3>No students assigned yet</h3>
+                <p>The administrator will assign students to you.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Documents from Your Students</h2>
+        </div>
+        <div class="card-body">
+            {% if documents %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Paper Title</th>
+                            <th>Description</th>
+                            <th>Submitted On</th>
+                            <th>Status</th>
+                            <th>Document</th>
+                            <th>Feedback</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for document in documents %}
+                        <tr>
+                            <td>{{ document.student_name }}</td>
+                            <td>{{ document.paper_name }}</td>
+                            <td>{{ document.description or 'No description' }}</td>
+                            <td>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}</td>
+                            <td>
+                                <span class="status-badge status-{{ document.status or 'submitted' }}">
+                                    {{ document.status or 'submitted' | title }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="/uploads/{{ document.document_submission }}" target="_blank" class="action-btn action-view">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                            <td>
+                                {% if document.feedback %}
+                                <div class="feedback-text">{{ document.feedback }}</div>
+                                {% else %}
+                                <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="/feedback/{{ document.id }}" method="POST" class="feedback-form">
+                                    <input type="text" name="feedback" class="form-control feedback-input" placeholder="Enter feedback" value="{{ document.feedback or '' }}" required>
+                                    <select name="status" class="form-select status-select">
+                                        <option value="submitted" {% if document.status == 'submitted' %}selected{% endif %}>Submitted</option>
+                                        <option value="reviewed" {% if document.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+                                        <option value="revised" {% if document.status == 'revised' %}selected{% endif %}>Needs Revision</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-file-alt empty-state-icon"></i>
+                <h3>No documents from your students</h3>
+                <p>When your assigned students upload documents, they will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
