@@ -1,15 +1,18 @@
 Research Review Portal
 
 Overview
-This application allows the creation of admin and user login pages. The admin serves as a supervisor who manages and tracks the activities of various users. The primary functionality of the admin is to validate the quality of research papers submitted by users and offer constructive feedback to improve their work.
+The Research Review Portal is a secure, role-based web application designed to streamline research paper submission, validation, and feedback processes between students, teachers, and administrators. It enables smooth collaboration, document management, and real-time notifications for all stakeholders.
 
 Features
-- User Authentication: Secure login and registration system with role-based access (User/Admin)
-- Research Paper Submission: Users can submit their research papers for validation by the admin.
-- Document Management: Upload, view, and manage research papers with drag-and-drop support
-- Admin Feedback:Admin can review and provide feedback on users' research papers.
-- User Dashboard: Users can track the status of their submissions and feedback provided by the admin.
-- Admin Dashboard: Admin can view, validate, and comment on multiple submissions from users.
+- User Authentication: Register and login for students and teachers. Admin login with default credentials.
+- Role-Based Dashboards
+- Admin: Manage users, assign teachers to students, view stats.
+- Teacher: Review student submissions and give feedback.
+- Student: Upload research papers and view feedback.
+- Research Paper Submission: Students can submit their research papers for validation by the teacher.
+- Document Management: Upload, view, and manage research papers with drag-and-drop support.
+- Teacher Feedback:Teacher can review and provide feedback on users' research papers.
+- Student Dashboard: Students can track the status of their submissions and feedback provided by the teacher.
 - Notification: Real-time notification system for important events
 
 Technologies Used
@@ -31,7 +34,6 @@ Research-Review-Portal/
 ├── static/               # Static assets
 │   ├── css/              # Stylesheets
 │   ├── js/               # JavaScript files
-│   └── images/           # Image assets
 └── templates/            # HTML templates
     ├── base.html         # Base template
     ├── login.html        # Login page
