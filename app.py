@@ -540,7 +540,7 @@ def remove_assignment(assignment_id):
 @login_required
 def view_document(doc_id):
     """
-    Custom document viewer that redirects to Cloudinary URL with proper headers
+    Enhanced document viewer that handles different file types appropriately
     """
     try:
         document = documents_collection.find_one({'_id': ObjectId(doc_id)})
@@ -568,25 +568,34 @@ def view_document(doc_id):
         
         # Get the Cloudinary URL
         cloudinary_url = document['document_submission']
+        filename = document.get('original_filename', 'document')
         
-        # Create a simple HTML page that redirects to Cloudinary with proper headers
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>View Document - {document['paper_name']}</title>
-            <meta http-equiv="refresh" content="0; url={cloudinary_url}">
-            <script>
-                window.location.href = '{cloudinary_url}';
-            </script>
-        </head>
-        <body>
-            <p>Redirecting to document... If you are not redirected, <a href="{cloudinary_url}">click here</a>.</p>
-        </body>
-        </html>
-        """
+        # Get file extension
+        file_ext = filename.split('.')[-1].lower() if '.' in filename else ''
         
-        return html_content
+        # For PDF files, use embedded viewer
+        if file_ext == 'pdf':
+            return render_template('document_viewer.html', 
+                                 document=document, 
+                                 cloudinary_url=cloudinary_url,
+                                 filename=filename)
+        
+        # For text files, try to display content
+        elif file_ext in ['txt', 'md']:
+            try:
+                import requests
+                response = requests.get(cloudinary_url)
+                if response.status_code == 200:
+                    content = response.text
+                    return render_template('text_viewer.html',
+                                         document=document,
+                                         content=content,
+                                         filename=filename)
+            except:
+                pass  # Fall back to download
+        
+        # For other file types (doc, docx), provide download with proper filename
+        return redirect(cloudinary_url)
         
     except bson_errors.InvalidId:
         flash('Invalid document ID.', 'error')
@@ -595,12 +604,11 @@ def view_document(doc_id):
         flash(f'Error viewing document: {str(e)}', 'error')
         return redirect(url_for('dashboard'))
 
-# Alternative direct view route that uses Cloudinary's transformation
-@app.route('/direct_view/<doc_id>')
+@app.route('/download_document/<doc_id>')
 @login_required
-def direct_view(doc_id):
+def download_document(doc_id):
     """
-    Direct view route that uses Cloudinary URL without intermediate page
+    Force download document with proper filename
     """
     try:
         document = documents_collection.find_one({'_id': ObjectId(doc_id)})
@@ -619,20 +627,23 @@ def direct_view(doc_id):
                     'student_id': document['user_id']
                 })
                 if not assignment:
-                    flash('You are not authorized to view this document.', 'error')
+                    flash('You are not authorized to download this document.', 'error')
                     return redirect(url_for('dashboard'))
             else:
-                flash('You are not authorized to view this document.', 'error')
+                flash('You are not authorized to download this document.', 'error')
                 return redirect(url_for('dashboard'))
         
-        # Redirect directly to Cloudinary URL
-        return redirect(document['document_submission'])
+        cloudinary_url = document['document_submission']
+        filename = document.get('original_filename', 'document')
+        
+        # Redirect to Cloudinary URL - browser will handle download
+        return redirect(cloudinary_url)
         
     except bson_errors.InvalidId:
         flash('Invalid document ID.', 'error')
         return redirect(url_for('dashboard'))
     except Exception as e:
-        flash(f'Error viewing document: {str(e)}', 'error')
+        flash(f'Error downloading document: {str(e)}', 'error')
         return redirect(url_for('dashboard'))
 
 @app.route('/profile')
