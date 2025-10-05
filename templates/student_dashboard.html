@@ -1,169 +1,400 @@
 {% extends "base.html" %}
-{% block title %}Student Dashboard - Research Paper Submission Portal{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-{% endblock %}
+{% block title %}Student Dashboard - Research Review & Feedback Portal{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1 class="dashboard-title">Student Dashboard</h1>
-        <div class="header-actions">
-            <button class="btn btn-primary" onclick="document.getElementById('uploadForm').scrollIntoView({behavior: 'smooth'})">
-                <i class="fas fa-upload"></i> Upload New Document
-            </button>
-        </div>
-    </div>
+<!-- Add Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+    }
+</script>
 
-    {% if teacher %}
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Your Assigned Teacher</h2>
-        </div>
-        <div class="card-body">
-            <div class="teacher-info">
-                <div class="teacher-avatar">
-                    <i class="fas fa-user-tie"></i>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Student Dashboard</h1>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Welcome back, {{ session.full_name }}! Manage your research submissions and track feedback.
+                    </p>
                 </div>
-                <div class="teacher-details">
-                    <h3>{{ teacher.full_name }}</h3>
-                    <p>{{ teacher.email }}</p>
+                <div class="mt-4 sm:mt-0">
+                    <button 
+                        onclick="document.getElementById('uploadForm').scrollIntoView({behavior: 'smooth'})"
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload New Document
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-    {% else %}
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Teacher Assignment</h2>
-        </div>
-        <div class="card-body">
-            <div class="empty-state">
-                <i class="fas fa-user-tie empty-state-icon"></i>
-                <h3>No teacher assigned yet</h3>
-                <p>The administrator will assign a teacher to you soon.</p>
+
+        <!-- Teacher Assignment Card -->
+        {% if teacher %}
+        <div class="mb-8">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-6 text-white">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-16 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-user-tie text-2xl"></i>
+                            </div>
+                        </div>
+                        <div class="ml-6">
+                            <h2 class="text-xl font-bold">Your Assigned Teacher</h2>
+                            <p class="text-indigo-100 mt-1">{{ teacher.full_name }}</p>
+                            <p class="text-indigo-200 text-sm mt-1">{{ teacher.email }}</p>
+                        </div>
+                        <div class="ml-auto">
+                            <div class="bg-white bg-opacity-20 rounded-lg px-3 py-1">
+                                <span class="text-sm font-medium">Ready for Feedback</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    {% endif %}
-
-    <div class="card" id="uploadForm">
-        <div class="card-header">
-            <h2 class="card-title">Upload New Document</h2>
-        </div>
-        <div class="card-body">
-            <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name" class="form-label">Your Name</label>
-                        <input type="text" name="name" id="name" class="form-control" value="{{ session.full_name }}" required>
+        {% else %}
+        <div class="mb-8">
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-user-tie text-yellow-500 text-2xl"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="paper_name" class="form-label">Paper Title</label>
-                        <input type="text" name="paper_name" id="paper_name" class="form-control" required>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-medium text-yellow-800 dark:text-yellow-200">No Teacher Assigned</h3>
+                        <p class="text-yellow-700 dark:text-yellow-300 mt-1">
+                            The administrator will assign a teacher to you soon. You can still upload documents in the meantime.
+                        </p>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="description" class="form-label">Description (Optional)</label>
-                    <textarea name="description" id="description" class="form-control" rows="3"></textarea>
-                </div>
-                
-                <div class="form-group file-upload">
-                    <label for="document_submission" class="file-upload-label">
-                        <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
-                        <span class="file-upload-text">Click to upload or drag and drop</span>
-                        <span class="file-upload-hint">PDF, DOC, DOCX, TXT (Max 16MB)</span>
-                    </label>
-                    <input type="file" name="document_submission" id="document_submission" class="file-upload-input" required accept=".pdf,.doc,.docx,.txt">
-                    <div class="file-name" id="fileName"></div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> Submit Document
-                </button>
-            </form>
+            </div>
         </div>
-    </div>
+        {% endif %}
 
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Your Submitted Documents</h2>
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-file-upload text-indigo-600 dark:text-indigo-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Submissions</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ documents|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Reviewed</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ documents|selectattr('feedback')|list|length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Review</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ documents|rejectattr('feedback')|list|length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            {% if documents %}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Paper Title</th>
-                            <th>Description</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th>Document</th>
-                            <th>Feedback</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for document in documents %}
-                        <tr>
-                            <td>{{ document.id }}</td>
-                            <td>{{ document.paper_name }}</td>
-                            <td>{{ document.description or 'No description' }}</td>
-                            <td>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}</td>
-                            <td>
-                                <span class="status-badge status-{{ document.status or 'submitted' }}">
-                                    {{ document.status or 'submitted' | title }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="/uploads/{{ document.document_submission }}" target="_blank" class="action-btn action-view">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                            </td>
-                            <td>
-                                {% if document.feedback %}
-                                <div class="feedback-container">
-                                    <div class="feedback-text">{{ document.feedback }}</div>
-                                    <div class="feedback-meta">
-                                        <small class="text-muted">
-                                            Status: <span class="status-badge status-{{ document.status }}">{{ document.status|title }}</span>
-                                            {% if document.reviewed_at %}
-                                            • Reviewed on: {{ document.reviewed_at.strftime('%Y-%m-%d') }}
-                                            {% endif %}
-                                        </small>
+
+        <!-- Upload Form -->
+        <div id="uploadForm" class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-cloud-upload-alt mr-3 text-indigo-600"></i>
+                        Upload New Document
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Your Name
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="name" 
+                                    id="name" 
+                                    value="{{ session.full_name }}"
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+                                >
+                            </div>
+                            <div>
+                                <label for="paper_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Paper Title
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="paper_name" 
+                                    id="paper_name" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+                                    placeholder="Enter your paper title"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Description (Optional)
+                            </label>
+                            <textarea 
+                                name="description" 
+                                id="description" 
+                                rows="3" 
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+                                placeholder="Brief description of your research paper..."
+                            ></textarea>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Document File
+                            </label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors duration-200">
+                                <div class="space-y-1 text-center">
+                                    <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mx-auto"></i>
+                                    <div class="flex text-sm text-gray-600 dark:text-gray-400">
+                                        <label for="document_submission" class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 focus-within:outline-none">
+                                            <span>Upload a file</span>
+                                            <input 
+                                                id="document_submission" 
+                                                name="document_submission" 
+                                                type="file" 
+                                                required 
+                                                accept=".pdf,.doc,.docx,.txt" 
+                                                class="sr-only"
+                                                onchange="updateFileName(this)"
+                                            >
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
                                     </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        PDF, DOC, DOCX, TXT up to 16MB
+                                    </p>
+                                    <div id="fileName" class="text-sm text-indigo-600 dark:text-indigo-400 font-medium"></div>
                                 </div>
-                                {% else %}
-                                <span class="text-muted">Pending review</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form action="/delete_document/{{ document.id }}" method="POST" style="display: inline;">
-                                    <button type="submit" class="action-btn action-delete" onclick="return confirm('Are you sure you want to delete this document?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button 
+                                type="submit" 
+                                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                            >
+                                <i class="fas fa-paper-plane mr-2"></i>
+                                Submit Document
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-file-upload empty-state-icon"></i>
-                <h3>No documents submitted yet</h3>
-                <p>Upload your first research paper to get started.</p>
+        </div>
+
+        <!-- Documents Table -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-folder-open mr-3 text-indigo-600"></i>
+                    Your Submitted Documents
+                </h2>
             </div>
-            {% endif %}
+            
+            <div class="p-6">
+                {% if documents %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Paper Title</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Submitted</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Feedback</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {% for document in documents %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ document.paper_name }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ document.description or 'No description' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    {{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% set status = document.status or 'submitted' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                        {% if status == 'reviewed' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                                        {% elif status == 'submitted' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+                                        {% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300{% endif %}">
+                                        {{ status|title }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {% if document.feedback %}
+                                    <div class="max-w-xs">
+                                        <div class="text-gray-900 dark:text-white font-medium mb-1">Teacher Feedback:</div>
+                                        <div class="text-gray-600 dark:text-gray-300 text-sm">{{ document.feedback|truncate(100) }}</div>
+                                        {% if document.reviewed_at %}
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                            Reviewed on {{ document.reviewed_at.strftime('%Y-%m-%d') }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% else %}
+                                    <span class="text-gray-400 dark:text-gray-500">Pending review</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <a href="{{ url_for('direct_view', doc_id=document.id) }}" target="_blank" 
+                                           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors duration-200"
+                                           title="View Document">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form action="/delete_document/{{ document.id }}" method="POST" class="inline">
+                                            <button type="submit" 
+                                                    onclick="return confirm('Are you sure you want to delete this document?')"
+                                                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200"
+                                                    title="Delete Document">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-file-upload text-gray-300 dark:text-gray-600 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No documents submitted yet</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">Upload your first research paper to get started with feedback.</p>
+                    <button 
+                        onclick="document.getElementById('uploadForm').scrollIntoView({behavior: 'smooth'})"
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                    >
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload Your First Document
+                    </button>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+<script>
+    function updateFileName(input) {
+        const fileNameDisplay = document.getElementById('fileName');
+        if (input.files.length > 0) {
+            fileNameDisplay.textContent = 'Selected file: ' + input.files[0].name;
+            fileNameDisplay.classList.add('text-green-600', 'dark:text-green-400');
+        } else {
+            fileNameDisplay.textContent = '';
+            fileNameDisplay.classList.remove('text-green-600', 'dark:text-green-400');
+        }
+    }
+
+    // Add drag and drop functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('document_submission');
+        const dropZone = fileInput.closest('div');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropZone.classList.add('border-indigo-400', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+        }
+        
+        function unhighlight() {
+            dropZone.classList.remove('border-indigo-400', 'bg-indigo-50', 'dark:bg-indigo-900/20');
+        }
+        
+        dropZone.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            updateFileName(fileInput);
+        }
+    });
+</script>
+
+<style>
+    /* Custom animations */
+    .dashboard-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Smooth transitions */
+    * {
+        transition-property: color, background-color, border-color, transform, box-shadow;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>
 {% endblock %}

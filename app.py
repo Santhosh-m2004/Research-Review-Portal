@@ -9,6 +9,10 @@ import uuid
 from bson.objectid import ObjectId
 from bson import errors as bson_errors
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+import urllib.parse
 
 # Load environment variables
 load_dotenv()
@@ -17,8 +21,13 @@ app = Flask(__name__)
 
 # Flask Configurations
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_change_in_production')
-app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
-app.config['MAX_CONTENT_LENGTH'] = int(os.getenv('MAX_CONTENT_LENGTH', 16 * 1024 * 1024))  # Default 16 MB
+
+# Cloudinary Configuration
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
+)
 
 # MongoDB Atlas connection from .env
 mongo_uri = os.getenv('MONGO_URI')
@@ -83,6 +92,14 @@ def add_notification(user_id, message, category='info'):
     }
     notifications_collection.insert_one(notification)
 
+def get_inline_view_url(cloudinary_url, filename):
+    """
+    Generate a Cloudinary URL that forces inline display for supported file types
+    """
+    # For raw files, we can't force inline display through Cloudinary transformations
+    # Instead, we'll rely on the browser's behavior for different file types
+    return cloudinary_url
+
 # Create default admin if not exists
 def create_default_admin():
     admin_exists = users_collection.find_one({'username': 'admin', 'role': 'admin'})
@@ -99,6 +116,10 @@ def create_default_admin():
         }
         users_collection.insert_one(admin_user)
         print("Default admin created: username=admin, password=admin123")
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.utcnow()}
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -196,13 +217,20 @@ def logout():
     username = session.get('username')
     session.clear()
     flash(f'Goodbye {username}! You have been logged out.', 'info')
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 @app.route('/')
 def index():
     if 'logged_in' in session:
         return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
+
+@app.route('/home')
+def home():
+    """Landing page for non-authenticated users"""
+    if 'logged_in' in session:
+        return redirect(url_for('dashboard'))
+    return render_template('home.html')
 
 @app.route('/dashboard')
 @login_required
@@ -240,6 +268,8 @@ def admin_dashboard():
         # Get student info
         student = users_collection.find_one({'_id': ObjectId(doc['user_id'])})
         doc['student_name'] = student['full_name'] if student else 'Unknown'
+        # Generate view URL
+        doc['view_url'] = url_for('view_document', doc_id=str(doc['_id']))
     
     # Get all teachers and students for assignment
     teachers = list(users_collection.find({'role': 'teacher'}))
@@ -280,6 +310,8 @@ def teacher_dashboard():
         # Get student info
         student = users_collection.find_one({'_id': ObjectId(doc['user_id'])})
         doc['student_name'] = student['full_name'] if student else 'Unknown'
+        # Generate view URL
+        doc['view_url'] = url_for('view_document', doc_id=str(doc['_id']))
     
     # Get list of assigned students with details
     students_with_details = []
@@ -293,7 +325,6 @@ def teacher_dashboard():
                          documents=documents,
                          students=students_with_details)
 
-
 @app.route('/student/dashboard')
 @login_required
 @student_required
@@ -304,6 +335,8 @@ def student_dashboard():
     documents = list(documents_collection.find({'user_id': user_id}).sort('uploaded_at', -1))
     for doc in documents:
         doc['id'] = str(doc['_id'])
+        # Generate view URL
+        doc['view_url'] = url_for('view_document', doc_id=str(doc['_id']))
     
     # Check if student has an assigned teacher
     assignment = assignments_collection.find_one({'student_id': user_id})
@@ -325,39 +358,48 @@ def upload():
     
     file = request.files['document_submission']
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # Add unique identifier to avoid filename conflicts
-        unique_filename = f"{uuid.uuid4().hex}_{filename}"
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-        file.save(file_path)
-        
-        user_id = session['user_id']
-        name = request.form['name']
-        paper_name = request.form['paper_name']
-        description = request.form.get('description', '')
-        
-        # Create document in database
-        document = {
-            'user_id': user_id,
-            'name': name,
-            'paper_name': paper_name,
-            'description': description,
-            'document_submission': unique_filename,
-            'original_filename': filename,
-            'feedback': None,
-            'status': 'submitted',
-            'uploaded_at': datetime.utcnow(),
-            'reviewed_at': None,
-            'reviewed_by': None
-        }
-        
-        documents_collection.insert_one(document)
-        
-        # Add notification
-        add_notification(user_id, f'Document "{paper_name}" uploaded successfully', 'success')
-        
-        flash('Document uploaded successfully.', 'success')
-        return redirect(url_for('student_dashboard'))
+        try:
+            # Upload to Cloudinary
+            upload_result = cloudinary.uploader.upload(
+                file,
+                folder="research_papers",
+                resource_type="raw",
+                use_filename=True,
+                unique_filename=True
+            )
+            
+            user_id = session['user_id']
+            name = request.form['name']
+            paper_name = request.form['paper_name']
+            description = request.form.get('description', '')
+            
+            # Create document in database
+            document = {
+                'user_id': user_id,
+                'name': name,
+                'paper_name': paper_name,
+                'description': description,
+                'document_submission': upload_result['secure_url'],
+                'cloudinary_public_id': upload_result['public_id'],
+                'original_filename': file.filename,
+                'feedback': None,
+                'status': 'submitted',
+                'uploaded_at': datetime.utcnow(),
+                'reviewed_at': None,
+                'reviewed_by': None
+            }
+            
+            documents_collection.insert_one(document)
+            
+            # Add notification
+            add_notification(user_id, f'Document "{paper_name}" uploaded successfully', 'success')
+            
+            flash('Document uploaded successfully.', 'success')
+            return redirect(url_for('student_dashboard'))
+            
+        except Exception as e:
+            flash(f'Error uploading file: {str(e)}', 'error')
+            return redirect(url_for('student_dashboard'))
     else:
         flash('Invalid file type. Allowed types: pdf, doc, docx, txt.', 'error')
         return redirect(url_for('student_dashboard'))
@@ -494,10 +536,104 @@ def remove_assignment(assignment_id):
     
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/uploads/<filename>')
+@app.route('/view_document/<doc_id>')
 @login_required
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+def view_document(doc_id):
+    """
+    Custom document viewer that redirects to Cloudinary URL with proper headers
+    """
+    try:
+        document = documents_collection.find_one({'_id': ObjectId(doc_id)})
+        
+        if not document:
+            flash('Document not found.', 'error')
+            return redirect(url_for('dashboard'))
+            
+        # Check if user has permission to view this document
+        if (document['user_id'] != session['user_id'] and 
+            session['role'] not in ['admin', 'teacher']):
+            
+            # For teachers, check if they're assigned to this student
+            if session['role'] == 'teacher':
+                assignment = assignments_collection.find_one({
+                    'teacher_id': session['user_id'],
+                    'student_id': document['user_id']
+                })
+                if not assignment:
+                    flash('You are not authorized to view this document.', 'error')
+                    return redirect(url_for('dashboard'))
+            else:
+                flash('You are not authorized to view this document.', 'error')
+                return redirect(url_for('dashboard'))
+        
+        # Get the Cloudinary URL
+        cloudinary_url = document['document_submission']
+        
+        # Create a simple HTML page that redirects to Cloudinary with proper headers
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>View Document - {document['paper_name']}</title>
+            <meta http-equiv="refresh" content="0; url={cloudinary_url}">
+            <script>
+                window.location.href = '{cloudinary_url}';
+            </script>
+        </head>
+        <body>
+            <p>Redirecting to document... If you are not redirected, <a href="{cloudinary_url}">click here</a>.</p>
+        </body>
+        </html>
+        """
+        
+        return html_content
+        
+    except bson_errors.InvalidId:
+        flash('Invalid document ID.', 'error')
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f'Error viewing document: {str(e)}', 'error')
+        return redirect(url_for('dashboard'))
+
+# Alternative direct view route that uses Cloudinary's transformation
+@app.route('/direct_view/<doc_id>')
+@login_required
+def direct_view(doc_id):
+    """
+    Direct view route that uses Cloudinary URL without intermediate page
+    """
+    try:
+        document = documents_collection.find_one({'_id': ObjectId(doc_id)})
+        
+        if not document:
+            flash('Document not found.', 'error')
+            return redirect(url_for('dashboard'))
+            
+        # Check permissions (same as view_document)
+        if (document['user_id'] != session['user_id'] and 
+            session['role'] not in ['admin', 'teacher']):
+            
+            if session['role'] == 'teacher':
+                assignment = assignments_collection.find_one({
+                    'teacher_id': session['user_id'],
+                    'student_id': document['user_id']
+                })
+                if not assignment:
+                    flash('You are not authorized to view this document.', 'error')
+                    return redirect(url_for('dashboard'))
+            else:
+                flash('You are not authorized to view this document.', 'error')
+                return redirect(url_for('dashboard'))
+        
+        # Redirect directly to Cloudinary URL
+        return redirect(document['document_submission'])
+        
+    except bson_errors.InvalidId:
+        flash('Invalid document ID.', 'error')
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        flash(f'Error viewing document: {str(e)}', 'error')
+        return redirect(url_for('dashboard'))
 
 @app.route('/profile')
 @login_required
@@ -576,33 +712,6 @@ def change_password():
     flash('Password changed successfully.', 'success')
     return redirect(url_for('profile'))
 
-@app.route('/notifications')
-@login_required
-def notifications():
-    user_id = session['user_id']
-    page = request.args.get('page', 1, type=int)
-    per_page = 10
-    skip = (page - 1) * per_page
-    
-    # Get notifications with pagination
-    notifications_list = list(notifications_collection.find({'user_id': user_id})
-                             .sort('created_at', -1)
-                             .skip(skip)
-                             .limit(per_page))
-    
-    total_notifications = notifications_collection.count_documents({'user_id': user_id})
-    
-    # Mark as read
-    notifications_collection.update_many(
-        {'user_id': user_id, 'read': False},
-        {'$set': {'read': True}}
-    )
-    
-    return render_template('notifications.html',
-                         notifications=notifications_list,
-                         page=page,
-                         per_page=per_page,
-                         total_notifications=total_notifications)
 
 @app.route('/delete_document/<doc_id>', methods=['POST'])
 @login_required
@@ -619,10 +728,12 @@ def delete_document(doc_id):
             flash('You are not authorized to delete this document.', 'error')
             return redirect(url_for('dashboard'))
         
-        # Delete the file
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], document['document_submission'])
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        # Delete from Cloudinary if public_id exists
+        if 'cloudinary_public_id' in document:
+            try:
+                cloudinary.uploader.destroy(document['cloudinary_public_id'], resource_type="raw")
+            except Exception as e:
+                print(f"Warning: Could not delete from Cloudinary: {str(e)}")
         
         # Delete from database
         documents_collection.delete_one({'_id': ObjectId(doc_id)})
@@ -640,6 +751,45 @@ def delete_document(doc_id):
         return redirect(url_for('teacher_dashboard'))
     else:
         return redirect(url_for('student_dashboard'))
+    
+@app.route('/notifications', methods=['GET', 'POST'])
+@login_required
+def notifications():
+    user_id = session['user_id']
+    
+    if request.method == 'POST':
+        # Mark all notifications as read
+        notifications_collection.update_many(
+            {'user_id': user_id, 'read': False},
+            {'$set': {'read': True}}
+        )
+        flash('All notifications marked as read.', 'success')
+        return redirect(url_for('notifications'))
+    
+    # Existing GET method code
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    skip = (page - 1) * per_page
+    
+    # Get notifications with pagination
+    notifications_list = list(notifications_collection.find({'user_id': user_id})
+                             .sort('created_at', -1)
+                             .skip(skip)
+                             .limit(per_page))
+    
+    total_notifications = notifications_collection.count_documents({'user_id': user_id})
+    
+    # Mark as read (this happens on page load for GET requests)
+    notifications_collection.update_many(
+        {'user_id': user_id, 'read': False},
+        {'$set': {'read': True}}
+    )
+    
+    return render_template('notifications.html',
+                         notifications=notifications_list,
+                         page=page,
+                         per_page=per_page,
+                         total_notifications=total_notifications)
 
 @app.errorhandler(404)
 def not_found(error):
@@ -647,13 +797,10 @@ def not_found(error):
 
 @app.errorhandler(413)
 def too_large(error):
-    flash('File too large. Maximum size is 16MB.', 'error')
+    flash('File too large. Maximum size is 100MB.', 'error')
     return redirect(request.url)
 
 if __name__ == '__main__':
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    
     # Create default admin if not exists
     create_default_admin()
     

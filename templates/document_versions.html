@@ -1,0 +1,336 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Document Versions - {{ original_doc.paper_name }} - Research Portal{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Document Versions</h1>
+    <div class="header-actions">
+        {% if session.role == 'student' and session.user_id == original_doc.user_id %}
+        <button class="btn btn-primary" onclick="document.getElementById('uploadVersionModal').style.display='flex'">
+            <i class="fas fa-plus"></i> Upload New Version
+        </button>
+        {% endif %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Document Info Card -->
+<div class="dashboard-card">
+    <div class="dashboard-card-header">
+        <h2 class="dashboard-card-title">
+            <i class="fas fa-file-alt"></i> {{ original_doc.paper_name }}
+        </h2>
+    </div>
+    <div class="dashboard-card-body">
+        <div class="document-meta">
+            <div class="meta-item">
+                <strong>Author:</strong> {{ student.full_name if student else 'Unknown' }}
+            </div>
+            <div class="meta-item">
+                <strong>Original Upload:</strong> {{ original_doc.uploaded_at.strftime('%Y-%m-%d %H:%M') if original_doc.uploaded_at else 'N/A' }}
+            </div>
+            <div class="meta-item">
+                <strong>Total Versions:</strong> {{ versions|length }}
+            </div>
+            <div class="meta-item">
+                <strong>Status:</strong> 
+                <span class="status-badge status-{{ versions[-1].status if versions else 'submitted' }}">
+                    {{ versions[-1].status.title() if versions else 'Submitted' }}
+                </span>
+            </div>
+        </div>
+        {% if original_doc.description %}
+        <div class="document-description">
+            <strong>Description:</strong>
+            <p>{{ original_doc.description }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Version History -->
+<div class="dashboard-card">
+    <div class="dashboard-card-header">
+        <h2 class="dashboard-card-title">
+            <i class="fas fa-code-branch"></i> Version History
+        </h2>
+    </div>
+    <div class="dashboard-card-body">
+        <div class="version-list">
+            {% for version in versions %}
+            <div class="version-item {% if loop.last %}latest-version{% endif %}">
+                <div class="version-info">
+                    <div class="version-number">
+                        Version {{ version.version }}
+                        {% if loop.last %}
+                        <span class="latest-badge">LATEST</span>
+                        {% endif %}
+                    </div>
+                    <div class="version-meta">
+                        <span><i class="fas fa-clock"></i> {{ version.uploaded_at.strftime('%Y-%m-%d %H:%M') if version.uploaded_at else 'N/A' }}</span>
+                        <span><i class="fas fa-file"></i> {{ version.original_filename }}</span>
+                        {% if version.description %}
+                        <span><i class="fas fa-comment"></i> {{ version.description }}</span>
+                        {% endif %}
+                    </div>
+                    {% if version.feedback %}
+                    <div class="version-feedback">
+                        <strong>Feedback:</strong>
+                        <p>{{ version.feedback }}</p>
+                        {% if version.reviewed_at %}
+                        <small class="text-muted">
+                            <i class="fas fa-user"></i> Reviewed on {{ version.reviewed_at.strftime('%Y-%m-%d') }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="version-actions">
+                    <a href="{{ version.cloudinary_url }}" target="_blank" class="action-btn action-view">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <a href="{{ version.cloudinary_url }}" download="{{ version.original_filename }}" class="action-btn action-edit">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                    {% if session.role == 'teacher' %}
+                    <button class="action-btn action-edit" onclick="openFeedbackModal('{{ version.id }}', '{{ version.feedback or '' }}', '{{ version.status or 'submitted' }}')">
+                        <i class="fas fa-comment"></i> Feedback
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Upload Version Modal -->
+{% if session.role == 'student' and session.user_id == original_doc.user_id %}
+<div id="uploadVersionModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Upload New Version</h3>
+            <button class="modal-close" onclick="document.getElementById('uploadVersionModal').style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="{{ url_for('upload_version', doc_id=original_doc._id) }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="version_notes" class="form-label">Version Notes (Optional)</label>
+                    <textarea name="version_notes" id="version_notes" class="form-control form-textarea" rows="3" placeholder="What changes did you make in this version?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Document File</label>
+                    <div class="file-upload-area">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="file-upload-text">Click to upload or drag and drop</div>
+                        <div class="file-upload-hint">PDF, DOC, DOCX, TXT (Max 16MB)</div>
+                        <input type="file" name="document_file" class="file-upload-input" required accept=".pdf,.doc,.docx,.txt">
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('uploadVersionModal').style.display='none'">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Upload Version
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Feedback Modal -->
+{% if session.role == 'teacher' %}
+<div id="feedbackModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Provide Feedback</h3>
+            <button class="modal-close" onclick="document.getElementById('feedbackModal').style.display='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="feedbackForm" method="POST">
+                <div class="form-group">
+                    <label for="feedback_text" class="form-label">Feedback</label>
+                    <textarea name="feedback" id="feedback_text" class="form-control form-textarea" rows="4" placeholder="Provide your feedback..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="feedback_status" class="form-label">Status</label>
+                    <select name="status" id="feedback_status" class="form-select">
+                        <option value="submitted">Submitted</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="revised">Needs Revision</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('feedbackModal').style.display='none'">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.document-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space);
+    margin-bottom: var(--space-lg);
+}
+
+.meta-item {
+    padding: var(--space-sm);
+    background: var(--gray-50);
+    border-radius: var(--radius);
+}
+
+.document-description {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--gray-200);
+}
+
+.latest-version {
+    border-left: 4px solid var(--primary-color);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.latest-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-xl);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: var(--space-sm);
+}
+
+.version-feedback {
+    margin-top: var(--space);
+    padding: var(--space);
+    background: var(--gray-50);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--success-color);
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray-500);
+    padding: var(--space-xs);
+    border-radius: var(--radius);
+    transition: var(--transition-all);
+}
+
+.modal-close:hover {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.modal-body {
+    padding: var(--space-lg);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--space);
+    justify-content: flex-end;
+    margin-top: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+    .document-meta {
+        grid-template-columns: 1fr;
+    }
+    
+    .version-item {
+        flex-direction: column;
+        gap: var(--space);
+    }
+    
+    .version-actions {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block dashboard_js %}
+<script>
+function openFeedbackModal(docId, currentFeedback, currentStatus) {
+    const modal = document.getElementById('feedbackModal');
+    const form = document.getElementById('feedbackForm');
+    const feedbackText = document.getElementById('feedback_text');
+    const feedbackStatus = document.getElementById('feedback_status');
+    
+    form.action = `/feedback/${docId}`;
+    feedbackText.value = currentFeedback;
+    feedbackStatus.value = currentStatus;
+    
+    modal.style.display = 'flex';
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

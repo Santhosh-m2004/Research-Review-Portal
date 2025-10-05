@@ -1,178 +1,391 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard - Research Paper Submission Portal{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-{% endblock %}
+{% block title %}Admin Dashboard - Research Review & Feedback Portal{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1 class="dashboard-title">Admin Dashboard</h1>
-        <div class="header-actions">
-            <span class="text-muted">Welcome, {{ session.full_name }}</span>
-        </div>
-    </div>
+<!-- Add Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+    }
+</script>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value">{{ user_stats.total_users }}</div>
-            <div class="stat-label">Total Users</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ user_stats.total_admins }}</div>
-            <div class="stat-label">Administrators</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ user_stats.total_teachers }}</div>
-            <div class="stat-label">Teachers</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ user_stats.total_students }}</div>
-            <div class="stat-label">Students</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ doc_stats.total_documents }}</div>
-            <div class="stat-label">Total Documents</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ doc_stats.documents_with_feedback }}</div>
-            <div class="stat-label">Reviewed</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value">{{ doc_stats.documents_pending_feedback }}</div>
-            <div class="stat-label">Pending Review</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Assign Teacher to Student</h2>
-        </div>
-        <div class="card-body">
-            <form action="{{ url_for('assign_teacher') }}" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="teacher_id" class="form-label">Teacher</label>
-                        <select name="teacher_id" id="teacher_id" class="form-select" required>
-                            <option value="">Select a Teacher</option>
-                            {% for teacher in teachers %}
-                            <option value="{{ teacher._id }}">{{ teacher.full_name }} ({{ teacher.username }})</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="student_id" class="form-label">Student</label>
-                        <select name="student_id" id="student_id" class="form-select" required>
-                            <option value="">Select a Student</option>
-                            {% for student in students %}
-                            <option value="{{ student._id }}">{{ student.full_name }} ({{ student.username }})</option>
-                            {% endfor %}
-                        </select>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Welcome back, {{ session.full_name }}! Manage users, assignments, and system overview.
+                    </p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg px-4 py-3 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-shield-alt text-indigo-600 dark:text-indigo-400"></i>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Administrator</span>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-link"></i> Assign Teacher
-                </button>
-            </form>
+            </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Current Assignments</h2>
-        </div>
-        <div class="card-body">
-            {% if assignments %}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Teacher</th>
-                            <th>Student</th>
-                            <th>Assigned On</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for assignment in assignments %}
-                        <tr>
-                            <td>{{ assignment.teacher_name }}</td>
-                            <td>{{ assignment.student_name }}</td>
-                            <td>{{ assignment.assigned_at.strftime('%Y-%m-%d') if assignment.assigned_at else 'N/A' }}</td>
-                            <td>
-                                <form action="{{ url_for('remove_assignment', assignment_id=assignment.id) }}" method="POST" style="display: inline;">
-                                    <button type="submit" class="action-btn action-delete" onclick="return confirm('Are you sure you want to remove this assignment?')">
-                                        <i class="fas fa-unlink"></i> Remove
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-indigo-100 text-sm font-medium">Total Users</p>
+                        <p class="text-3xl font-bold mt-1">{{ user_stats.total_users }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-users text-xl"></i>
+                    </div>
+                </div>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-link empty-state-icon"></i>
-                <h3>No assignments yet</h3>
-                <p>Assign teachers to students using the form above.</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Recent Document Submissions</h2>
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-600 rounded-2xl shadow-xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium">Documents</p>
+                        <p class="text-3xl font-bold mt-1">{{ doc_stats.total_documents }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-file-alt text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl shadow-xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium">Reviewed</p>
+                        <p class="text-3xl font-bold mt-1">{{ doc_stats.documents_with_feedback }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl shadow-xl p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium">Pending</p>
+                        <p class="text-3xl font-bold mt-1">{{ doc_stats.documents_pending_feedback }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            {% if recent_documents %}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Paper Title</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for document in recent_documents %}
-                        <tr>
-                            <td>{{ document.student_name }}</td>
-                            <td>{{ document.paper_name }}</td>
-                            <td>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}</td>
-                            <td>
-                                <span class="status-badge status-{{ document.status or 'submitted' }}">
-                                    {{ document.status or 'submitted' | title }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="/uploads/{{ document.document_submission }}" target="_blank" class="action-btn action-view">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                <form action="/delete_document/{{ document.id }}" method="POST" style="display: inline;">
-                                    <button type="submit" class="action-btn action-delete" onclick="return confirm('Are you sure you want to delete this document?')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+
+        <!-- User Breakdown -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-purple-600 dark:text-purple-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Administrators</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.total_admins }}</p>
+                    </div>
+                </div>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-file-alt empty-state-icon"></i>
-                <h3>No documents submitted yet</h3>
-                <p>When students upload documents, they will appear here.</p>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-chalkboard-teacher text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Teachers</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.total_teachers }}</p>
+                    </div>
+                </div>
             </div>
-            {% endif %}
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-graduate text-green-600 dark:text-green-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Students</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ user_stats.total_students }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assign Teacher to Student -->
+        <div class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-link mr-3 text-indigo-600"></i>
+                        Assign Teacher to Student
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <form action="{{ url_for('assign_teacher') }}" method="POST" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="teacher_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <i class="fas fa-chalkboard-teacher mr-2"></i>Teacher
+                                </label>
+                                <select 
+                                    name="teacher_id" 
+                                    id="teacher_id" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+                                >
+                                    <option value="">Select a Teacher</option>
+                                    {% for teacher in teachers %}
+                                    <option value="{{ teacher._id }}">{{ teacher.full_name }} ({{ teacher.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="student_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <i class="fas fa-user-graduate mr-2"></i>Student
+                                </label>
+                                <select 
+                                    name="student_id" 
+                                    id="student_id" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white transition-all duration-200"
+                                >
+                                    <option value="">Select a Student</option>
+                                    {% for student in students %}
+                                    <option value="{{ student._id }}">{{ student.full_name }} ({{ student.username }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button 
+                                type="submit" 
+                                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                            >
+                                <i class="fas fa-link mr-2"></i>
+                                Assign Teacher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Assignments -->
+        <div class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-list-alt mr-3 text-indigo-600"></i>
+                        Current Assignments
+                    </h2>
+                </div>
+                <div class="p-6">
+                    {% if assignments %}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Teacher</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Student</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Assigned On</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                {% for assignment in assignments %}
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ assignment.teacher_name }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ assignment.student_name }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                        {{ assignment.assigned_at.strftime('%Y-%m-%d') if assignment.assigned_at else 'N/A' }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <form action="{{ url_for('remove_assignment', assignment_id=assignment.id) }}" method="POST" class="inline">
+                                            <button 
+                                                type="submit" 
+                                                onclick="return confirm('Are you sure you want to remove this assignment?')"
+                                                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200 inline-flex items-center"
+                                            >
+                                                <i class="fas fa-unlink mr-1"></i>
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-link text-gray-300 dark:text-gray-600 text-5xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No assignments yet</h3>
+                        <p class="text-gray-500 dark:text-gray-400">
+                            Assign teachers to students using the form above to get started.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Document Submissions -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-file-upload mr-3 text-indigo-600"></i>
+                    Recent Document Submissions
+                </h2>
+            </div>
+            
+            <div class="p-6">
+                {% if recent_documents %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Student</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Paper Title</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Submitted</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            {% for document in recent_documents %}
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ document.student_name }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900 dark:text-white">{{ document.paper_name }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                    {{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% set status = document.status or 'submitted' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                        {% if status == 'reviewed' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                                        {% elif status == 'submitted' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+                                        {% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300{% endif %}">
+                                        {{ status|title }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
+                                        <a href="{{ url_for('view_document', doc_id=document.id) }}" target="_blank" 
+                                           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors duration-200"
+                                           title="View Document">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form action="/delete_document/{{ document.id }}" method="POST" class="inline">
+                                            <button 
+                                                type="submit" 
+                                                onclick="return confirm('Are you sure you want to delete this document?')"
+                                                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200"
+                                                title="Delete Document">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-file-alt text-gray-300 dark:text-gray-600 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No documents submitted yet</h3>
+                    <p class="text-gray-500 dark:text-gray-400">
+                        When students upload research papers, they will appear here for monitoring.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Add interactive functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add focus effects to form elements
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            });
+            input.addEventListener('blur', function() {
+                this.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            });
+        });
+
+        // Add confirmation for delete actions
+        const deleteForms = document.querySelectorAll('form[action*="delete"]');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to delete this item?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Custom animations */
+    .dashboard-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Smooth transitions */
+    * {
+        transition-property: color, background-color, border-color, transform, box-shadow;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Gradient text for stats */
+    .gradient-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+</style>
 {% endblock %}

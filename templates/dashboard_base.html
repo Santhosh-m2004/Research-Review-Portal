@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% block dashboard_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h2 class="sidebar-title">Research Portal</h2>
+            </div>
+        </div>
+        
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item">
+                    <a href="{{ url_for('dashboard') }}" class="sidebar-nav-link {% if request.endpoint in ['dashboard', 'admin_dashboard', 'teacher_dashboard', 'student_dashboard'] %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                
+                {% if session.role == 'admin' %}
+                <li class="sidebar-nav-item">
+                    <a href="{{ url_for('admin_users') }}" class="sidebar-nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}">
+                        <i class="fas fa-users"></i> User Management
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% if session.role == 'student' %}
+                <li class="sidebar-nav-item">
+                    <a href="#uploadForm" class="sidebar-nav-link" onclick="document.getElementById('uploadForm')?.scrollIntoView({behavior: 'smooth'})">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </a>
+                </li>
+                {% endif %}
+                
+                <li class="sidebar-nav-item">
+                    <a href="{{ url_for('profile') }}" class="sidebar-nav-link {% if request.endpoint == 'profile' %}active{% endif %}">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                </li>
+                
+                <li class="sidebar-nav-item">
+                    <a href="{{ url_for('notifications') }}" class="sidebar-nav-link {% if request.endpoint == 'notifications' %}active{% endif %}">
+                        <i class="fas fa-bell"></i> Notifications
+                        {% if unread_notifications and unread_notifications > 0 %}
+                        <span class="notification-badge">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-user">
+            <div class="sidebar-user-info">
+                <div class="sidebar-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h3 class="sidebar-user-name">{{ session.full_name }}</h3>
+                    <p class="sidebar-user-role">{{ session.role|title }}</p>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="sidebar-nav-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        {% block dashboard_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% block dashboard_js %}{% endblock %}
+{% endblock %}

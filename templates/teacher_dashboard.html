@@ -1,122 +1,382 @@
 {% extends "base.html" %}
-{% block title %}Teacher Dashboard - Research Paper Submission Portal{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-{% endblock %}
+{% block title %}Teacher Dashboard - Research Review & Feedback Portal{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1 class="dashboard-title">Teacher Dashboard</h1>
-        <div class="header-actions">
-            <span class="text-muted">Welcome, {{ session.full_name }}</span>
-        </div>
-    </div>
+<!-- Add Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+    }
+</script>
 
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Your Assigned Students</h2>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Teacher Dashboard</h1>
+                    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        Welcome back, {{ session.full_name }}! Review student submissions and provide feedback.
+                    </p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg px-4 py-3 border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-user-tie text-indigo-600 dark:text-indigo-400"></i>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Teacher Account</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            {% if students %}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-graduate text-indigo-600 dark:text-indigo-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned Students</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ students|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-file-alt text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Documents</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ documents|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Reviewed</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ documents|selectattr('feedback')|list|length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Review</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ documents|rejectattr('feedback')|list|length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assigned Students Card -->
+        <div class="mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-user-graduate mr-3 text-indigo-600"></i>
+                        Your Assigned Students
+                    </h2>
+                </div>
+                <div class="p-6">
+                    {% if students %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {% for student in students %}
-                        <tr>
-                            <td>{{ student.full_name }}</td>
-                            <td>{{ student.username }}</td>
-                            <td>{{ student.email }}</td>
-                        </tr>
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 transition-colors duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-user text-indigo-600 dark:text-indigo-400"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        {{ student.full_name }}
+                                    </p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                        {{ student.email }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-user-graduate text-gray-300 dark:text-gray-600 text-5xl mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No students assigned yet</h3>
+                        <p class="text-gray-500 dark:text-gray-400">
+                            The administrator will assign students to you. Once assigned, you'll be able to review their submissions here.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-user-graduate empty-state-icon"></i>
-                <h3>No students assigned yet</h3>
-                <p>The administrator will assign students to you.</p>
-            </div>
-            {% endif %}
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Documents from Your Students</h2>
-        </div>
-        <div class="card-body">
-            {% if documents %}
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Paper Title</th>
-                            <th>Description</th>
-                            <th>Submitted On</th>
-                            <th>Status</th>
-                            <th>Document</th>
-                            <th>Feedback</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for document in documents %}
-                        <tr>
-                            <td>{{ document.student_name }}</td>
-                            <td>{{ document.paper_name }}</td>
-                            <td>{{ document.description or 'No description' }}</td>
-                            <td>{{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}</td>
-                            <td>
-                                <span class="status-badge status-{{ document.status or 'submitted' }}">
-                                    {{ document.status or 'submitted' | title }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="/uploads/{{ document.document_submission }}" target="_blank" class="action-btn action-view">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                            </td>
-                            <td>
-                                {% if document.feedback %}
-                                <div class="feedback-text">{{ document.feedback }}</div>
-                                {% else %}
-                                <span class="text-muted">Not provided</span>
+        <!-- Documents from Students -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-file-alt mr-3 text-indigo-600"></i>
+                    Documents from Your Students
+                </h2>
+            </div>
+            
+            <div class="p-6">
+                {% if documents %}
+                <div class="space-y-6">
+                    {% for document in documents %}
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 border border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all duration-200">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                            <!-- Document Info -->
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                                            {{ document.paper_name }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                            by <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ document.student_name }}</span>
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                            {% if document.status == 'reviewed' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                                            {% elif document.status == 'submitted' %}bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300
+                                            {% elif document.status == 'revised' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+                                            {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300{% endif %}">
+                                            {{ (document.status or 'submitted')|title }}
+                                        </span>
+                                        <a href="{{ url_for('direct_view', doc_id=document.id) }}" target="_blank" 
+                                           class="inline-flex items-center px-3 py-1 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-500 transition-colors duration-200">
+                                            <i class="fas fa-eye mr-1"></i> View
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {% if document.description %}
+                                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                                    {{ document.description }}
+                                </p>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <form action="/feedback/{{ document.id }}" method="POST" class="feedback-form">
-                                    <input type="text" name="feedback" class="form-control feedback-input" placeholder="Enter feedback" value="{{ document.feedback or '' }}" required>
-                                    <select name="status" class="form-select status-select">
-                                        <option value="submitted" {% if document.status == 'submitted' %}selected{% endif %}>Submitted</option>
-                                        <option value="reviewed" {% if document.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
-                                        <option value="revised" {% if document.status == 'revised' %}selected{% endif %}>Needs Revision</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-primary">Submit</button>
+
+                                <div class="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                                    <span>
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        {{ document.uploaded_at.strftime('%Y-%m-%d %H:%M') if document.uploaded_at else 'N/A' }}
+                                    </span>
+                                    {% if document.reviewed_at %}
+                                    <span>
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Reviewed: {{ document.reviewed_at.strftime('%Y-%m-%d') }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Feedback Form -->
+                            <div class="lg:w-96">
+                                <form action="/feedback/{{ document.id }}" method="POST" class="space-y-3">
+                                    <div>
+                                        <label for="feedback_{{ document.id }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Your Feedback
+                                        </label>
+                                        <textarea 
+                                            id="feedback_{{ document.id }}"
+                                            name="feedback" 
+                                            rows="3"
+                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-600 dark:text-white text-sm transition-all duration-200"
+                                            placeholder="Provide constructive feedback for the student..."
+                                            required
+                                        >{{ document.feedback or '' }}</textarea>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label for="status_{{ document.id }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Status
+                                            </label>
+                                            <select 
+                                                id="status_{{ document.id }}"
+                                                name="status" 
+                                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-600 dark:text-white text-sm transition-all duration-200"
+                                            >
+                                                <option value="submitted" {% if document.status == 'submitted' %}selected{% endif %}>Submitted</option>
+                                                <option value="reviewed" {% if document.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+                                                <option value="revised" {% if document.status == 'revised' %}selected{% endif %}>Needs Revision</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-end">
+                                            <button 
+                                                type="submit" 
+                                                class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-sm"
+                                            >
+                                                <i class="fas fa-paper-plane mr-2"></i>
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
                                 </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            </div>
+                        </div>
+
+                        <!-- Previous Feedback Display -->
+                        {% if document.feedback %}
+                        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-check text-green-600 dark:text-green-400 text-sm"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-1">Your Previous Feedback</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ document.feedback }}</p>
+                                    {% if document.reviewed_at %}
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                        Last updated: {{ document.reviewed_at.strftime('%Y-%m-%d %H:%M') }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-file-alt text-gray-300 dark:text-gray-600 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No documents from your students</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-6">
+                        When your assigned students upload research papers, they will appear here for your review.
+                    </p>
+                    {% if not students %}
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 max-w-md mx-auto">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-yellow-500 mr-3"></i>
+                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                You need to have assigned students before you can review documents.
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-file-alt empty-state-icon"></i>
-                <h3>No documents from your students</h3>
-                <p>When your assigned students upload documents, they will appear here.</p>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+    // Add auto-resize for textareas
+    document.addEventListener('DOMContentLoaded', function() {
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            // Auto-resize
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Trigger initial resize
+            textarea.dispatchEvent(new Event('input'));
+        });
+
+        // Add focus effects
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50', 'rounded-lg');
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50', 'rounded-lg');
+            });
+        });
+    });
+
+    // Form submission feedback
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+                    submitBtn.disabled = true;
+                }
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Custom animations */
+    .dashboard-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Smooth transitions */
+    * {
+        transition-property: color, background-color, border-color, transform, box-shadow;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Custom scrollbar for dark mode */
+    .dark ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .dark ::-webkit-scrollbar-track {
+        background: #374151;
+    }
+    
+    .dark ::-webkit-scrollbar-thumb {
+        background: #6B7280;
+        border-radius: 4px;
+    }
+    
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: #9CA3AF;
+    }
+</style>
 {% endblock %}

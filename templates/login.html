@@ -1,44 +1,205 @@
 {% extends "base.html" %}
-{% block title %}Login - Research Paper Submission Portal{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-{% endblock %}
+{% block title %}Login - Research Review & Feedback Portal{% endblock %}
 
-{% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h2>Research Paper Submission Portal</h2>
-            <p>Login to your account</p>
+{% block auth_content %}
+<!-- Add Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+    }
+</script>
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="flex justify-center mb-6">
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+                Research Portal
+            </h2>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Sign in to your account
+            </p>
         </div>
-        <div class="auth-body">
-            <form method="post">
-                <div class="form-group">
-                    <label for="username" class="form-label">Username or Email</label>
-                    <input type="text" name="username" id="username" class="form-control" required>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                        <div class="rounded-md p-4 {% if category == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400{% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400{% endif %}">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm">{{ message }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                
-                <div class="form-group password-toggle">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" id="password" class="form-control" required>
-                    <i class="fas fa-eye password-toggle-icon"></i>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-checkbox">
-                        <input type="checkbox" name="remember_me" id="remember_me">
-                        <span>Remember me</span>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login Card -->
+        <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl">
+            <form class="space-y-6" method="post">
+                <!-- Username/Email Field -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user mr-2"></i>Username or Email
                     </label>
+                    <div class="relative">
+                        <input 
+                            id="username" 
+                            name="username" 
+                            type="text" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            placeholder="Enter your username or email"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                    </div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 pr-10"
+                            placeholder="Enter your password"
+                        >
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-eye text-gray-400 hover:text-indigo-500 transition-colors duration-200" id="password-toggle-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input 
+                            id="remember_me" 
+                            name="remember_me" 
+                            type="checkbox" 
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded"
+                        >
+                        <label for="remember_me" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                            Remember me
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button 
+                        type="submit" 
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt text-indigo-300 group-hover:text-indigo-200"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
             </form>
+
+            <!-- Footer Links -->
+            <div class="mt-6 text-center space-y-3">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Don't have an account?
+                    <a href="{{ url_for('register') }}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200 ml-1">
+                        Create one here
+                    </a>
+                </p>
+                <p class="text-sm">
+                    <a href="{{ url_for('home') }}" class="font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Home
+                    </a>
+                </p>
+            </div>
         </div>
-        <div class="auth-footer">
-            <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
-        </div>
+
+        <!-- Demo Credentials
+        <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+                <i class="fas fa-info-circle mr-1"></i>Demo Credentials
+            </h3>
+            <div class="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+                <p><strong>Admin:</strong> admin / admin123</p>
+                <p><strong>Teacher/Student:</strong> Register new account</p>
+            </div>
+        </div> -->
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const icon = document.getElementById('password-toggle-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Add focus effects
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            });
+        });
+    });
+</script>
+
+<style>
+    /* Custom animations */
+    .auth-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Smooth transitions for all interactive elements */
+    * {
+        transition-property: color, background-color, border-color, transform, box-shadow;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>
 {% endblock %}

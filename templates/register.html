@@ -1,61 +1,321 @@
 {% extends "base.html" %}
-{% block title %}Register - Research Paper Submission Portal{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-{% endblock %}
+{% block title %}Register - Research Review & Feedback Portal{% endblock %}
 
-{% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h2>Research Paper Submission Portal</h2>
-            <p>Create a new account</p>
+{% block auth_content %}
+<!-- Add Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+    }
+</script>
+
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="flex justify-center mb-6">
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-user-plus text-white text-2xl"></i>
+                </div>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+                Research Portal
+            </h2>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Create your account
+            </p>
         </div>
-        <div class="auth-body">
-            <form method="post">
-                <div class="form-group">
-                    <label for="full_name" class="form-label">Full Name</label>
-                    <input type="text" name="full_name" id="full_name" class="form-control" required>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                        <div class="rounded-md p-4 {% if category == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400{% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400{% endif %}">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm">{{ message }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" name="username" id="username" class="form-control" required>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Register Card -->
+        <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl">
+            <form class="space-y-5" method="post">
+                <!-- Full Name Field -->
+                <div>
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user-circle mr-2"></i>Full Name
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="full_name" 
+                            name="full_name" 
+                            type="text" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            placeholder="Enter your full name"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" id="email" class="form-control" required>
+
+                <!-- Username Field -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-at mr-2"></i>Username
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="username" 
+                            name="username" 
+                            type="text" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            placeholder="Choose a username"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-user-tag text-gray-400"></i>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="form-group password-toggle">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" id="password" class="form-control" required>
-                    <i class="fas fa-eye password-toggle-icon"></i>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="email" 
+                            name="email" 
+                            type="email" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            placeholder="Enter your email address"
+                        >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="form-group password-toggle">
-                    <label for="confirm_password" class="form-label">Confirm Password</label>
-                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
-                    <i class="fas fa-eye password-toggle-icon"></i>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 pr-10"
+                            placeholder="Create a password"
+                        >
+                        <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-eye text-gray-400 hover:text-indigo-500 transition-colors duration-200" id="password-toggle-icon"></i>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Minimum 6 characters</p>
                 </div>
-                
-                <div class="form-group">
-                    <label for="role" class="form-label">I am a:</label>
-                    <select name="role" id="role" class="form-select" required>
-                        <option value="student">Student</option>
-                        <option value="teacher">Teacher</option>
-                    </select>
+
+                <!-- Confirm Password Field -->
+                <div>
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Confirm Password
+                    </label>
+                    <div class="relative">
+                        <input 
+                            id="confirm_password" 
+                            name="confirm_password" 
+                            type="password" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 pr-10"
+                            placeholder="Confirm your password"
+                        >
+                        <button type="button" onclick="togglePassword('confirm_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-eye text-gray-400 hover:text-indigo-500 transition-colors duration-200" id="confirm-password-toggle-icon"></i>
+                        </button>
+                    </div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-user-plus"></i> Register
-                </button>
+
+                <!-- Role Selection -->
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <i class="fas fa-user-tie mr-2"></i>I am a:
+                    </label>
+                    <div class="relative">
+                        <select 
+                            id="role" 
+                            name="role" 
+                            required 
+                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 appearance-none"
+                        >
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button 
+                        type="submit" 
+                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus text-indigo-300 group-hover:text-indigo-200"></i>
+                        </span>
+                        Create Account
+                    </button>
+                </div>
             </form>
+
+            <!-- Footer Links -->
+            <div class="mt-6 text-center space-y-3">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Already have an account?
+                    <a href="{{ url_for('login') }}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200 ml-1">
+                        Sign in here
+                    </a>
+                </p>
+                <p class="text-sm">
+                    <a href="{{ url_for('home') }}" class="font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200">
+                        <i class="fas fa-arrow-left mr-1"></i>Back to Home
+                    </a>
+                </p>
+            </div>
         </div>
-        <div class="auth-footer">
-            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+
+        <!-- Role Information -->
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4 border border-indigo-200 dark:border-indigo-800">
+            <h3 class="text-sm font-medium text-indigo-800 dark:text-indigo-300 mb-2">
+                <i class="fas fa-info-circle mr-1"></i>Role Information
+            </h3>
+            <div class="text-xs text-indigo-600 dark:text-indigo-400 space-y-2">
+                <div class="flex items-start">
+                    <i class="fas fa-graduation-cap mt-0.5 mr-2"></i>
+                    <span><strong>Student:</strong> Submit research papers and receive feedback from teachers</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-chalkboard-teacher mt-0.5 mr-2"></i>
+                    <span><strong>Teacher:</strong> Review student submissions and provide feedback</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword(fieldId) {
+        const passwordInput = document.getElementById(fieldId);
+        const icon = document.getElementById(fieldId === 'password' ? 'password-toggle-icon' : 'confirm-password-toggle-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Password strength indicator (optional enhancement)
+    function checkPasswordStrength() {
+        const password = document.getElementById('password').value;
+        const strengthIndicator = document.getElementById('password-strength');
+        
+        if (!strengthIndicator) return;
+        
+        let strength = 0;
+        if (password.length >= 6) strength++;
+        if (password.match(/[a-z]+/)) strength++;
+        if (password.match(/[A-Z]+/)) strength++;
+        if (password.match(/[0-9]+/)) strength++;
+        if (password.match(/[!@#$%^&*(),.?":{}|<>]+/)) strength++;
+        
+        const strengthText = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'][strength] || 'Very Weak';
+        const strengthColors = ['text-red-500', 'text-orange-500', 'text-yellow-500', 'text-blue-500', 'text-green-500'];
+        
+        strengthIndicator.textContent = `Strength: ${strengthText}`;
+        strengthIndicator.className = `text-xs ${strengthColors[strength]} mt-1`;
+    }
+
+    // Add focus effects
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+            });
+        });
+
+        // Add password strength checking
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', checkPasswordStrength);
+        }
+    });
+</script>
+
+<style>
+    /* Custom animations */
+    .auth-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Custom select styling */
+    select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    /* Dark mode select styling */
+    .dark select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    }
+    
+    /* Smooth transitions for all interactive elements */
+    * {
+        transition-property: color, background-color, border-color, transform, box-shadow;
+        transition-duration: 200ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+</style>
 {% endblock %}

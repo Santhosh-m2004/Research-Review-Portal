@@ -9,6 +9,8 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    {% if session.logged_in %}
+    <!-- Authenticated User Layout -->
     <div class="page-container">
         <header class="header">
             <div class="header-content">
@@ -17,36 +19,29 @@
                     <h1>Research Portal</h1>
                 </div>
                 <nav class="nav">
-                    {% if session.logged_in %}
-                        <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                        {% if session.role == 'admin' %}
-                            <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
-                                <i class="fas fa-cog"></i> Admin
-                            </a>
-                        {% endif %}
-                        <a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint == 'profile' %}active{% endif %}">
-                            <i class="fas fa-user"></i> Profile
-                        </a>
-                        <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint == 'notifications' %}active{% endif %}">
-                            <i class="fas fa-bell"></i> Notifications
-                            {% if unread_notifications and unread_notifications > 0 %}
-                                <span class="notification-badge">{{ unread_notifications }}</span>
-                            {% endif %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    {% if session.role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                            <i class="fas fa-cog"></i> Admin
                         </a>
                     {% endif %}
+                    <a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint == 'profile' %}active{% endif %}">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a href="{{ url_for('notifications') }}" class="nav-link {% if request.endpoint == 'notifications' %}active{% endif %}">
+                        <i class="fas fa-bell"></i> Notifications
+                        {% if unread_notifications and unread_notifications > 0 %}
+                            <span class="notification-badge">{{ unread_notifications }}</span>
+                        {% endif %}
+                    </a>
                 </nav>
                 <div class="user-actions">
-                    {% if session.logged_in %}
-                        <span class="user-greeting">Hello, {{ session.full_name }}</span>
-                        <a href="{{ url_for('logout') }}" class="btn btn-outline">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
-                        <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
-                    {% endif %}
+                    <span class="user-greeting">Hello, {{ session.full_name }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
         </header>
@@ -73,7 +68,7 @@
 
         <footer class="footer">
             <div class="footer-content">
-                <p>&copy; 2023 Research Paper Submission Portal. All rights reserved.</p>
+                <p>&copy; {{ now.year }} Research Paper Submission Portal. All rights reserved.</p>
                 <div class="footer-links">
                     <a href="#">Privacy Policy</a>
                     <a href="#">Terms of Service</a>
@@ -82,6 +77,16 @@
             </div>
         </footer>
     </div>
+    {% else %}
+        <!-- Non-authenticated User Layout -->
+        {% if request.endpoint in ['login', 'register'] %}
+            <!-- For login/register pages, show auth layout -->
+            {% block auth_content %}{% endblock %}
+        {% else %}
+            <!-- For home page, show home layout -->
+            {% block home_content %}{% endblock %}
+        {% endif %}
+    {% endif %}
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}
