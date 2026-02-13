@@ -10,12 +10,12 @@
     }
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen register-page-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <!-- Header -->
         <div class="text-center">
             <div class="flex justify-center mb-6">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center">
+                <div class="register-icon-box">
                     <i class="fas fa-user-plus text-white text-2xl"></i>
                 </div>
             </div>
@@ -48,7 +48,7 @@
         {% endwith %}
 
         <!-- Register Card -->
-        <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 transition-all duration-300 hover:shadow-2xl">
+        <div class="register-card">
             <form class="space-y-5" method="post">
                 <!-- Full Name Field -->
                 <div>
@@ -61,7 +61,7 @@
                             name="full_name" 
                             type="text" 
                             required 
-                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            class="register-input"
                             placeholder="Enter your full name"
                         >
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -81,7 +81,7 @@
                             name="username" 
                             type="text" 
                             required 
-                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            class="register-input"
                             placeholder="Choose a username"
                         >
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -101,7 +101,7 @@
                             name="email" 
                             type="email" 
                             required 
-                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200"
+                            class="register-input"
                             placeholder="Enter your email address"
                         >
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -121,11 +121,11 @@
                             name="password" 
                             type="password" 
                             required 
-                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 pr-10"
+                            class="register-input register-input-password"
                             placeholder="Create a password"
                         >
-                        <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <i class="fas fa-eye text-gray-400 hover:text-indigo-500 transition-colors duration-200" id="password-toggle-icon"></i>
+                        <button type="button" onclick="togglePassword('password')" class="register-password-toggle">
+                            <i class="fas fa-eye text-gray-400" id="password-toggle-icon"></i>
                         </button>
                     </div>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Minimum 6 characters</p>
@@ -142,11 +142,11 @@
                             name="confirm_password" 
                             type="password" 
                             required 
-                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 pr-10"
+                            class="register-input register-input-password"
                             placeholder="Confirm your password"
                         >
-                        <button type="button" onclick="togglePassword('confirm_password')" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                            <i class="fas fa-eye text-gray-400 hover:text-indigo-500 transition-colors duration-200" id="confirm-password-toggle-icon"></i>
+                        <button type="button" onclick="togglePassword('confirm_password')" class="register-password-toggle">
+                            <i class="fas fa-eye text-gray-400" id="confirm-password-toggle-icon"></i>
                         </button>
                     </div>
                 </div>
@@ -161,7 +161,7 @@
                             id="role" 
                             name="role" 
                             required 
-                            class="relative block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 transition-all duration-200 appearance-none"
+                            class="register-input register-select"
                         >
                             <option value="student">Student</option>
                             <option value="teacher">Teacher</option>
@@ -174,12 +174,9 @@
 
                 <!-- Submit Button -->
                 <div class="pt-4">
-                    <button 
-                        type="submit" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105 shadow-lg"
-                    >
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <i class="fas fa-user-plus text-indigo-300 group-hover:text-indigo-200"></i>
+                    <button type="submit" class="register-submit-btn">
+                        <span class="register-btn-icon">
+                            <i class="fas fa-user-plus"></i>
                         </span>
                         Create Account
                     </button>
@@ -190,12 +187,12 @@
             <div class="mt-6 text-center space-y-3">
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     Already have an account?
-                    <a href="{{ url_for('login') }}" class="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200 ml-1">
+                    <a href="{{ url_for('login') }}" class="register-link">
                         Sign in here
                     </a>
                 </p>
                 <p class="text-sm">
-                    <a href="{{ url_for('home') }}" class="font-medium text-gray-600 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors duration-200">
+                    <a href="{{ url_for('home') }}" class="register-link-secondary">
                         <i class="fas fa-arrow-left mr-1"></i>Back to Home
                     </a>
                 </p>
@@ -203,11 +200,11 @@
         </div>
 
         <!-- Role Information -->
-        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4 border border-indigo-200 dark:border-indigo-800">
-            <h3 class="text-sm font-medium text-indigo-800 dark:text-indigo-300 mb-2">
+        <div class="register-role-info">
+            <h3 class="register-role-title">
                 <i class="fas fa-info-circle mr-1"></i>Role Information
             </h3>
-            <div class="text-xs text-indigo-600 dark:text-indigo-400 space-y-2">
+            <div class="register-role-list">
                 <div class="flex items-start">
                     <i class="fas fa-graduation-cap mt-0.5 mr-2"></i>
                     <span><strong>Student:</strong> Submit research papers and receive feedback from teachers</span>
@@ -260,13 +257,13 @@
 
     // Add focus effects
     document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('input, select');
+        const inputs = document.querySelectorAll('.register-card input, .register-card select');
         inputs.forEach(input => {
             input.addEventListener('focus', function() {
-                this.parentElement.classList.add('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+                this.parentElement.classList.add('register-input-wrapper-focus');
             });
             input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('ring-2', 'ring-indigo-500', 'ring-opacity-50');
+                this.parentElement.classList.remove('register-input-wrapper-focus');
             });
         });
 
@@ -279,43 +276,234 @@
 </script>
 
 <style>
-    /* Custom animations */
-    .auth-container {
-        animation: fadeInUp 0.6s ease-out;
+    /* Register page - custom theme (teal/emerald) */
+    :root {
+        --register-primary: #0d9488;
+        --register-primary-dark: #0f766e;
+        --register-primary-light: #14b8a6;
+        --register-bg: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #99f6e4 100%);
+        --register-bg-dark: linear-gradient(135deg, #134e4a 0%, #115e59 100%);
+        --register-card-shadow: 0 25px 50px -12px rgba(13, 148, 136, 0.15);
+        --register-card-shadow-hover: 0 25px 50px -12px rgba(13, 148, 136, 0.25);
     }
-    
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+
+    .register-page-bg {
+        min-height: 100vh;
+        background: var(--register-bg);
+        position: relative;
+        overflow: hidden;
     }
-    
-    /* Custom select styling */
-    select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0.5rem center;
+
+    .register-page-bg::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 60%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(20, 184, 166, 0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .register-icon-box {
+        width: 4rem;
+        height: 4rem;
+        background: linear-gradient(135deg, var(--register-primary) 0%, var(--register-primary-dark) 100%);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.35);
+    }
+
+    .register-card {
+        background: white;
+        box-shadow: var(--register-card-shadow);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        border: 1px solid rgba(13, 148, 136, 0.1);
+    }
+
+    .register-card:hover {
+        box-shadow: var(--register-card-shadow-hover);
+        transform: translateY(-3px);
+    }
+
+    .register-input {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        padding-right: 2.75rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+    }
+
+    .register-input::placeholder {
+        color: #94a3b8;
+    }
+
+    .register-input:focus {
+        outline: none;
+        border-color: var(--register-primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+
+    .register-input-password {
+        padding-right: 2.75rem;
+    }
+
+    .register-input-wrapper-focus.relative {
+        box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+        border-radius: 0.75rem;
+    }
+
+    .register-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%230d9488' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.75rem center;
         background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-right: 2.5rem;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        background-size: 1.25em 1.25em;
     }
-    
-    /* Dark mode select styling */
-    .dark select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+
+    .register-submit-btn {
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, var(--register-primary) 0%, var(--register-primary-dark) 100%);
+        border: none;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px 0 rgba(13, 148, 136, 0.4);
     }
-    
-    /* Smooth transitions for all interactive elements */
-    * {
-        transition-property: color, background-color, border-color, transform, box-shadow;
-        transition-duration: 200ms;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+    .register-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px 0 rgba(13, 148, 136, 0.5);
+        background: linear-gradient(135deg, var(--register-primary-light) 0%, var(--register-primary) 100%);
+    }
+
+    .register-btn-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        padding-left: 1rem;
+        opacity: 0.9;
+    }
+
+    .register-link {
+        font-weight: 500;
+        color: var(--register-primary);
+        text-decoration: none;
+        transition: color 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .register-link:hover {
+        color: var(--register-primary-dark);
+    }
+
+    .register-link-secondary {
+        font-weight: 500;
+        color: #64748b;
+        text-decoration: none;
+        transition: color 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .register-link-secondary:hover {
+        color: var(--register-primary);
+    }
+
+    .register-password-toggle {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .register-password-toggle i:hover {
+        color: var(--register-primary) !important;
+    }
+
+    .register-role-info {
+        background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid rgba(13, 148, 136, 0.2);
+    }
+
+    .register-role-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #0f766e;
+        margin-bottom: 0.5rem;
+    }
+
+    .register-role-list {
+        font-size: 0.75rem;
+        color: #0d9488;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* Dark mode */
+    .dark .register-page-bg {
+        background: linear-gradient(135deg, #134e4a 0%, #0f172a 100%);
+    }
+
+    .dark .register-card {
+        background: #1e293b;
+        border-color: rgba(20, 184, 166, 0.2);
+    }
+
+    .dark .register-input {
+        background: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+
+    .dark .register-input:focus {
+        background: #334155;
+    }
+
+    .dark .register-role-info {
+        background: linear-gradient(135deg, #134e4a 0%, #115e59 100%);
+        border-color: rgba(20, 184, 166, 0.3);
+    }
+
+    .dark .register-role-title,
+    .dark .register-role-list {
+        color: #5eead4;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .register-card {
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 </style>
 {% endblock %}

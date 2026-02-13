@@ -2,155 +2,155 @@
 
 {% block title %}Research Review & Feedback Portal{% endblock %}
 
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block home_content %}
-<!-- Converted React component to HTML with Tailwind CSS -->
-<div class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans antialiased">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: 'class' }</script>
+
+<div class="home-page">
     <!-- Header -->
-    <header class="bg-white dark:bg-gray-900/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                RRF Portal
-            </div>
-            <div class="flex items-center space-x-4">
-                <a href="#features" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</a>
-                <a href="#tech-stack" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Tech Stack</a>
-                <a href="{{ url_for('login') }}" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Login</a>
-                <a href="{{ url_for('register') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-105">
-                    Register
-                </a>
+    <header class="home-header" id="home-header">
+        <nav class="home-nav">
+            <a href="/" class="home-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>RRF Portal</span>
+            </a>
+            <div class="home-nav-links">
+                <a href="#features">Features</a>
+                <a href="#tech-stack">Tech Stack</a>
+                <a href="{{ url_for('login') }}" class="home-nav-login">Login</a>
+                <a href="{{ url_for('register') }}" class="home-nav-register">Register</a>
             </div>
         </nav>
     </header>
 
-    <!-- Main Content -->
     <main>
         <!-- Hero Section -->
-        <section class="relative pt-20 pb-32 flex items-center justify-center text-center bg-white dark:bg-gray-900">
-            <div class="absolute top-0 left-0 w-full h-full bg-cover bg-center opacity-10 dark:opacity-20" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png')"></div>
-            <div class="container mx-auto px-6 relative z-10">
-                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white leading-tight mb-4">
-                    Research Review & Feedback Portal
-                </h1>
-                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-                    A full-stack academic management system designed to streamline the research review process with secure, role-based access and automated workflows.
+        <section class="home-hero">
+            <div class="home-hero-pattern"></div>
+            <div class="home-hero-content">
+                <p class="home-hero-badge home-animate" data-delay="0">Academic Management System</p>
+                <h1 class="home-hero-title home-animate" data-delay="100">Research Review & Feedback Portal</h1>
+                <p class="home-hero-subtitle home-animate" data-delay="200">
+                    Streamline research submission, validation, and feedback with secure role-based access. Built for students, teachers, and administrators.
                 </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="{{ url_for('login') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 inline-block text-center">
-                        Login
-                    </a>
-                    <a href="{{ url_for('register') }}" class="bg-white hover:bg-gray-100 text-indigo-600 font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 inline-block text-center border border-indigo-600">
-                        Register
-                    </a>
+                <div class="home-hero-buttons home-animate" data-delay="300">
+                    <a href="{{ url_for('login') }}" class="home-btn home-btn-primary">Sign In</a>
+                    <a href="{{ url_for('register') }}" class="home-btn home-btn-secondary">Get Started</a>
                 </div>
             </div>
         </section>
         
         <!-- Features Section -->
-        <section id="features" class="py-20 bg-gray-50 dark:bg-gray-800/50">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">A Powerful, All-in-One Solution</h2>
-                    <p class="text-md text-gray-600 dark:text-gray-400 mt-2 max-w-2xl mx-auto">
-                        Architected and deployed a secure, scalable web application serving three distinct user roles with customized dashboards and workflow automation.
+        <section id="features" class="home-features">
+            <div class="home-section-container">
+                <div class="home-section-header home-reveal">
+                    <h2 class="home-section-title">A Powerful, All-in-One Solution</h2>
+                    <p class="home-section-subtitle">
+                        A secure, scalable web application serving three distinct user roles with customized dashboards and workflow automation.
                     </p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <div class="home-features-grid">
                     <!-- Feature 1 -->
-                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-500">
+                    <div class="home-feature-card home-reveal">
+                        <div class="home-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="9" cy="7" r="4"></circle>
                                 <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Role-Based Dashboards</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Customized interfaces for Administrators, Teachers, and Students, ensuring a focused and efficient user experience for everyone.</p>
+                        <h3 class="home-feature-title">Role-Based Dashboards</h3>
+                        <p class="home-feature-desc">Customized interfaces for Administrators, Teachers, and Students, ensuring a focused and efficient user experience for everyone.</p>
                     </div>
 
                     <!-- Feature 2 -->
-                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-500">
+                    <div class="home-feature-card home-reveal">
+                        <div class="home-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
                                 <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
                                 <polyline points="14 2 14 8 20 8"></polyline>
                                 <path d="m9 15 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Real-Time Document Tracking</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Live updates on document status, from submission to final review, eliminating ambiguity and keeping all stakeholders informed.</p>
+                        <h3 class="home-feature-title">Real-Time Document Tracking</h3>
+                        <p class="home-feature-desc">Live updates on document status, from submission to final review, eliminating ambiguity and keeping all stakeholders informed.</p>
                     </div>
 
                     <!-- Feature 3 -->
-                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-500">
+                    <div class="home-feature-card home-reveal">
+                        <div class="home-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
                                 <line x1="6" y1="3" x2="6" y2="15"></line>
                                 <circle cx="18" cy="6" r="3"></circle>
                                 <circle cx="6" cy="18" r="3"></circle>
                                 <path d="M18 9a9 9 0 0 1-9 9"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Automated Workflows</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Intelligent teacher-student assignment and streamlined feedback loops that save valuable administrative time and effort.</p>
+                        <h3 class="home-feature-title">Automated Workflows</h3>
+                        <p class="home-feature-desc">Intelligent teacher-student assignment and streamlined feedback loops that save valuable administrative time and effort.</p>
                     </div>
 
                     <!-- Feature 4 -->
-                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-500">
+                    <div class="home-feature-card home-reveal">
+                        <div class="home-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
                                 <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
                                 <path d="M12 12v9"></path>
                                 <path d="m16 16-4-4-4 4"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Drag-and-Drop Management</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Intuitive and simple file handling. Upload, organize, and manage research documents with a seamless drag-and-drop interface.</p>
+                        <h3 class="home-feature-title">Drag-and-Drop Management</h3>
+                        <p class="home-feature-desc">Intuitive and simple file handling. Upload, organize, and manage research documents with a seamless drag-and-drop interface.</p>
                     </div>
 
                     <!-- Feature 5 -->
-                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-500">
+                    <div class="home-feature-card home-reveal">
+                        <div class="home-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                 <path d="m9 12 2 2 4-4"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Enterprise-Grade Security</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Protecting sensitive academic data with bcrypt hashing, secure session management, RBAC, and CSRF protection.</p>
+                        <h3 class="home-feature-title">Enterprise-Grade Security</h3>
+                        <p class="home-feature-desc">Protecting sensitive academic data with bcrypt hashing, secure session management, RBAC, and CSRF protection.</p>
                     </div>
 
                     <!-- Feature 6 -->
-                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-2">
-                        <div class="flex items-center justify-center h-16 w-16 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-indigo-500">
+                    <div class="home-feature-card home-reveal">
+                        <div class="home-feature-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" >
                                 <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
                                 <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
                                 <path d="M4 2C2.8 3.7 2 5.7 2 8"></path>
                                 <path d="M20 8c0-2.3-.8-4.3-2-6"></path>
                             </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Robust Notification System</h3>
-                        <p class="text-gray-600 dark:text-gray-400 leading-relaxed">Stay updated with instant alerts, read/unread status tracking, and categorized messages for all important events and actions.</p>
+                        <h3 class="home-feature-title">Robust Notification System</h3>
+                        <p class="home-feature-desc">Stay updated with instant alerts, read/unread status tracking, and categorized messages for all important events and actions.</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Tech Stack Section -->
-        <section id="tech-stack" class="py-20 bg-white dark:bg-gray-900">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">Built with a Modern Tech Stack</h2>
-                    <p class="text-md text-gray-600 dark:text-gray-400 mt-2">
+        <section id="tech-stack" class="home-tech">
+            <div class="home-section-container">
+                <div class="home-section-header home-reveal">
+                    <h2 class="home-section-title">Built with a Modern Tech Stack</h2>
+                    <p class="home-section-subtitle">
                         Leveraging powerful and reliable technologies for a robust and scalable application.
                     </p>
                 </div>
-                <div class="max-w-4xl mx-auto bg-gray-100 dark:bg-gray-800 p-8 rounded-2xl shadow-inner">
-                    <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-6">
-                        <!-- Python Flask -->
-                        <div class="flex flex-col items-center justify-center text-center p-4 transition-transform transform hover:scale-110">
+                <div class="home-tech-grid">
+                    <!-- Python Flask -->
+                    <div class="home-tech-item home-reveal">
                             <div class="w-16 h-16 mb-2 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
                                     <path fill="#3776ab" d="M17,40.9c0,0,1.2,2.1,3.2,2.1c2,0,3.2-2,3.2-2l-0.1-6.8h-6.3L17,40.9z"></path>
@@ -164,56 +164,56 @@
                                     <path fill="#ffd343" d="M28,34v6c0,2.2,1.8,4,4,4h2c2.2,0,4-1.8,4-4v-6c0-2.2-1.8-4-4-4h-2C29.8,30,28,31.8,28,34z M34,40 c0,1.1-0.9,2-2,2s-2-0.9-2-2s0.9-2,2-2S34,38.9,34,40z M32,32c1.1,0,2,0.9,2,2s-0.9,2-2,2s-2-0.9-2-2S30.9,32,32,32z"></path>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Python (Flask)</p>
+                            <p class="home-tech-label">Python (Flask)</p>
                         </div>
 
                         <!-- MongoDB -->
-                        <div class="flex flex-col items-center justify-center text-center p-4 transition-transform transform hover:scale-110">
+                        <div class="home-tech-item home-reveal">
                             <div class="w-16 h-16 mb-2 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
                                     <path fill="#4db33d" d="M39.6,23.4c-0.1-0.1-0.2-0.1-0.3-0.2c0,0,0,0,0,0c-0.1-0.1-0.2-0.1-0.3-0.2c-0.2-0.1-0.4-0.2-0.6-0.3 c-0.1,0-0.1,0-0.1,0c-0.2-0.1-0.5-0.2-0.7-0.3c0,0-0.1,0-0.1-0.1c-0.3-0.1-0.5-0.2-0.8-0.2c-0.1,0-0.1,0-0.2-0.1 c-0.3-0.1-0.6-0.2-0.9-0.2c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0c-0.1,0-0.2,0-0.2,0c-0.1,0-0.2,0-0.4,0c-0.1,0-0.1,0-0.2,0 c-0.1,0-0.2,0-0.4,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0c-0.1,0-0.1,0-0.2,0 c-0.1,0-0.2,0-0.3,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0l-1.3,0c-0.1,0-0.2,0-0.3,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0 c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.2,0-0.3,0 c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2,0c-0.1,0-0.1,0-0.2,0.1c-0.1,0-0.2,0-0.3,0.1c-0.1,0-0.1,0-0.2,0.1c-0.3,0.1-0.6,0.2-0.9,0.2 c-0.1,0-0.1,0-0.2,0.1c-0.3,0.1-0.5,0.2-0.8,0.2c-0.1,0-0.1,0-0.2,0.1c-0.2,0.1-0.5,0.2-0.7,0.3c0,0-0.1,0-0.1,0.1 c-0.2,0.1-0.4,0.2-0.6,0.3c-0.1,0.1-0.2,0.1-0.3,0.2c0,0,0,0,0,0c-0.1,0.1-0.2,0.1-0.3,0.2c-0.1,0.1-0.2,0.2-0.3,0.3 c-0.1,0.1-0.2,0.2-0.2,0.2c-0.1,0.1-0.2,0.2-0.2,0.3c-0.1,0.1-0.2,0.2-0.2,0.3L8.4,23.4c-3.1-4.1,3.2-11.2,3.3-11.3 c0.1-0.1,0.2-0.2,0.4-0.3C12.3,11.7,13,11,14.6,11c0.1,0,0.1,0,0.2,0c0.1,0,0.1,0,0.2,0c1,0,1.9,0.5,2.5,1.4c0,0,0,0.1,0.1,0.1 c0.2-0.2,0.5-0.4,0.8-0.6C18.6,11.8,19,11,20,11c1.1,0,1.9,0.8,2,1.8l0,0.1c0,0,0,0.1,0,0.1c0,0.2,0,0.5-0.1,0.7 c0-0.1,0-0.2-0.1-0.3c-0.2-0.9-1-1.5-2-1.5c-0.9,0-1.7,0.7-1.9,1.5c-0.1,0.2-0.1,0.5-0.1,0.7c0.1,2.1,0.2,4.4,0.2,4.5 C18.1,20.4,21,22,24,22s5.9-1.6,5.9-4.1c0-0.1,0.1-2.3,0.2-4.5c0-0.2,0-0.5-0.1-0.7c-0.2-0.8-1-1.5-1.9-1.5c-1,0-1.8,0.6-2,1.5 c0,0.1-0.1,0.2-0.1,0.3c0-0.2,0-0.5-0.1-0.7c0-0.1,0-0.1,0-0.1l0-0.1c0.1-1,0.9-1.8,2-1.8c1,0,1.4,0.8,1.6,0.9 c0.3,0.2,0.6,0.4,0.8,0.6c0,0,0.1,0,0.1-0.1c0.6-0.8,1.5-1.4,2.5-1.4c0.1,0,0.1,0,0.2,0c0.1,0,0.1,0,0.2,0 c1.6,0,2.4,0.7,2.5,0.8c0.1,0.1,0.3,0.2,0.4,0.3c0.1,0.1,6.4,7.2,3.3,11.3L39.6,23.4z"></path>
                                     <path fill="#fff" d="M25.2,16.2c-1.3,0.6-2,1-2.5,1.3c0.2,0,0.3,0,0.5,0c0.8,0,1.6-0.2,2.3-0.6c-0.1,0.1-0.1,0.1-0.2,0.2 c-0.6,0.5-1.3,0.8-2.1,0.8s-1.5-0.3-2.1-0.8c-0.1-0.1-0.1-0.1-0.2-0.2c0.7,0.4,1.5,0.6,2.3,0.6c0.2,0,0.3,0,0.5,0 c-0.5-0.3-1.2-0.7-2.5-1.3c-1.5-0.7-3.2-0.5-3.2-0.5c0,0.1-0.1,0.3-0.1,0.5c0.1,2,2.6,3.6,5.1,3.6s5-1.6,5.1-3.6 c0-0.2,0-0.4-0.1-0.5C28.4,15.7,26.7,15.5,25.2,16.2z"></path>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">MongoDB Atlas</p>
+                            <p class="home-tech-label">MongoDB Atlas</p>
                         </div>
 
                         <!-- JavaScript -->
-                        <div class="flex flex-col items-center justify-center text-center p-4 transition-transform transform hover:scale-110">
+                        <div class="home-tech-item home-reveal">
                             <div class="w-16 h-16 mb-2 flex items-center justify-center">
                                 <svg class="w-12 h-12 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M0 0h20v20H0V0zm18 18V2H2v16h16zM11 5H9v10h2V5zM7 5H5v10h2V5zm8 0h-2v10h2V5z"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">JavaScript (ES6+)</p>
+                            <p class="home-tech-label">JavaScript (ES6+)</p>
                         </div>
 
                         <!-- HTML5 -->
-                        <div class="flex flex-col items-center justify-center text-center p-4 transition-transform transform hover:scale-110">
+                        <div class="home-tech-item home-reveal">
                             <div class="w-16 h-16 mb-2 flex items-center justify-center">
                                 <svg class="w-12 h-12 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M18 2H2a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2zM4 14V6h3l2 3 2-3h3v8H4z"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">HTML5</p>
+                            <p class="home-tech-label">HTML5</p>
                         </div>
 
                         <!-- CSS3 -->
-                        <div class="flex flex-col items-center justify-center text-center p-4 transition-transform transform hover:scale-110">
+                        <div class="home-tech-item home-reveal">
                             <div class="w-16 h-16 mb-2 flex items-center justify-center">
                                 <svg class="w-12 h-12 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M18 2H2a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V4a2 2 0 00-2-2zM5 14l3-4-3-4h2l2 2.5L10 6h2l-3 4 3 4h-2l-2-2.5L8 14H5z"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">CSS3</p>
+                            <p class="home-tech-label">CSS3</p>
                         </div>
 
                         <!-- Jinja2 -->
-                        <div class="flex flex-col items-center justify-center text-center p-4 transition-transform transform hover:scale-110">
+                        <div class="home-tech-item home-reveal">
                             <div class="w-16 h-16 mb-2 flex items-center justify-center">
                                 <span class="text-4xl font-bold text-gray-700 dark:text-gray-300">{ }</span>
                             </div>
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-300">Jinja2</p>
+                            <p class="home-tech-label">Jinja2</p>
                         </div>
                     </div>
                 </div>
@@ -222,18 +222,566 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-100 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-        <div class="container mx-auto px-6 py-6 text-center text-gray-600 dark:text-gray-400">
-            &copy; {{ now.year }} Research Review & Feedback Portal. All Rights Reserved.
+    <footer class="home-footer">
+        <div class="home-footer-content">
+            <p>&copy; {{ now.year }} Research Review & Feedback Portal. All rights reserved.</p>
+            <div class="home-footer-links">
+                <a href="#">Privacy Policy</a>
+                <span class="home-footer-divider">·</span>
+                <a href="#">Terms of Service</a>
+                <span class="home-footer-divider">·</span>
+                <a href="#">Contact</a>
+            </div>
         </div>
     </footer>
 </div>
 
-<!-- Add Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-    tailwind.config = {
-        darkMode: 'class',
+<style>
+/* Home page - Professional styling with transitions */
+:root {
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: 0.2s var(--ease-in-out);
+    --transition-medium: 0.35s var(--ease-out-quart);
+    --transition-slow: 0.5s var(--ease-out-expo);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.home-page {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #1e293b;
+    background: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Page load animations */
+.home-animate {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: homeFadeInUp 0.8s var(--ease-out-expo) forwards;
+}
+.home-animate[data-delay="0"] { animation-delay: 0ms; }
+.home-animate[data-delay="100"] { animation-delay: 100ms; }
+.home-animate[data-delay="200"] { animation-delay: 200ms; }
+.home-animate[data-delay="300"] { animation-delay: 300ms; }
+
+@keyframes homeFadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+/* Scroll reveal */
+.home-reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+}
+.home-reveal.home-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.home-features-grid .home-feature-card:nth-child(1) { transition-delay: 0ms; }
+.home-features-grid .home-feature-card:nth-child(2) { transition-delay: 50ms; }
+.home-features-grid .home-feature-card:nth-child(3) { transition-delay: 100ms; }
+.home-features-grid .home-feature-card:nth-child(4) { transition-delay: 150ms; }
+.home-features-grid .home-feature-card:nth-child(5) { transition-delay: 200ms; }
+.home-features-grid .home-feature-card:nth-child(6) { transition-delay: 250ms; }
+
+.home-tech-grid .home-tech-item:nth-child(1) { transition-delay: 0ms; }
+.home-tech-grid .home-tech-item:nth-child(2) { transition-delay: 40ms; }
+.home-tech-grid .home-tech-item:nth-child(3) { transition-delay: 80ms; }
+.home-tech-grid .home-tech-item:nth-child(4) { transition-delay: 120ms; }
+.home-tech-grid .home-tech-item:nth-child(5) { transition-delay: 160ms; }
+.home-tech-grid .home-tech-item:nth-child(6) { transition-delay: 200ms; }
+
+/* Header */
+.home-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    transition: background var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+.home-header.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.home-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.home-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    text-decoration: none;
+    transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.home-logo i {
+    font-size: 1.5rem;
+    color: #334155;
+    transition: transform var(--transition-medium);
+}
+
+.home-logo:hover {
+    color: #334155;
+}
+
+.home-logo:hover i {
+    transform: scale(1.08) rotate(-6deg);
+}
+
+.home-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.home-nav-links a {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: none;
+    position: relative;
+    transition: color var(--transition-fast);
+}
+
+.home-nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1.5px;
+    background: #0f172a;
+    transition: width var(--transition-medium) var(--ease-out-quart);
+}
+
+.home-nav-links a:hover {
+    color: #0f172a;
+}
+
+.home-nav-links a:hover::after {
+    width: 100%;
+}
+
+.home-nav-register {
+    padding: 0.5rem 1rem;
+    background: #0f172a;
+    color: white !important;
+    border-radius: 6px;
+    transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.home-nav-register::after {
+    display: none !important;
+}
+
+.home-nav-register:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+/* Hero */
+.home-hero {
+    position: relative;
+    padding: 6rem 1.5rem 7rem;
+    text-align: center;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.home-hero-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(15, 23, 42, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(15, 23, 42, 0.04) 0%, transparent 40%);
+    pointer-events: none;
+    animation: homePatternPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes homePatternPulse {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+}
+
+.home-hero-content {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.home-hero-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #475569;
+    background: #f1f5f9;
+    border-radius: 9999px;
+    letter-spacing: 0.02em;
+}
+
+.home-hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    margin-bottom: 1.25rem;
+}
+
+.home-hero-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #64748b;
+    margin-bottom: 2rem;
+}
+
+.home-hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.home-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all var(--transition-medium);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.home-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.home-btn:hover::before {
+    opacity: 1;
+}
+
+.home-btn-primary {
+    background: #0f172a;
+    color: white;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.home-btn-primary:hover {
+    background: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(15, 23, 42, 0.15), 0 4px 10px -6px rgba(15, 23, 42, 0.1);
+}
+
+.home-btn-primary:active {
+    transform: translateY(0);
+}
+
+.home-btn-secondary {
+    background: white;
+    color: #0f172a;
+    border: 1.5px solid #e2e8f0;
+}
+
+.home-btn-secondary:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.home-btn-secondary:active {
+    transform: translateY(0);
+}
+
+/* Section container */
+.home-section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.home-section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.home-section-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+    margin-bottom: 0.75rem;
+}
+
+.home-section-subtitle {
+    font-size: 1rem;
+    color: #64748b;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Features */
+.home-features {
+    padding: 5rem 0;
+    background: #f1f5f9;
+}
+
+.home-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.home-feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all var(--transition-medium);
+}
+
+.home-feature-card:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px -8px rgba(15, 23, 42, 0.12), 0 8px 20px -8px rgba(15, 23, 42, 0.08);
+}
+
+.home-feature-card:hover .home-feature-icon {
+    transform: scale(1.05);
+    background: #e2e8f0;
+}
+
+.home-feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1.25rem;
+    background: #f1f5f9;
+    border-radius: 10px;
+    color: #334155;
+    transition: transform var(--transition-medium), background var(--transition-medium);
+}
+
+.home-feature-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.home-feature-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.home-feature-desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #64748b;
+}
+
+/* Tech Stack */
+.home-tech {
+    padding: 5rem 0;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+}
+
+.home-tech-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem 3rem;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.home-tech-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: transform var(--transition-medium);
+}
+
+.home-tech-item:hover {
+    transform: translateY(-6px) scale(1.05);
+}
+
+.home-tech-item > div:first-child {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-tech-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* Footer */
+.home-footer {
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 2rem 1.5rem;
+}
+
+.home-footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.home-footer-content p {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.home-footer-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.home-footer-links a {
+    color: #64748b;
+    text-decoration: none;
+    position: relative;
+    transition: color var(--transition-fast);
+}
+
+.home-footer-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #334155;
+    transition: width var(--transition-medium);
+}
+
+.home-footer-links a:hover {
+    color: #334155;
+}
+
+.home-footer-links a:hover::after {
+    width: 100%;
+}
+
+.home-footer-divider {
+    color: #cbd5e1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .home-nav-links {
+        gap: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .home-hero {
+        padding: 4rem 1rem 5rem;
+    }
+    
+    .home-features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .home-tech-grid {
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+
+    // Header scroll effect
+    const header = document.getElementById('home-header');
+    if (header) {
+        let lastScroll = 0;
+        const onScroll = () => {
+            const currentScroll = window.scrollY;
+            header.classList.toggle('scrolled', currentScroll > 20);
+            lastScroll = currentScroll;
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    }
+
+    // Scroll reveal with Intersection Observer
+    const revealElements = document.querySelectorAll('.home-reveal');
+    if (revealElements.length && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('home-visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -40px 0px'
+        });
+        revealElements.forEach(el => observer.observe(el));
+    } else {
+        revealElements.forEach(el => el.classList.add('home-visible'));
+    }
+})();
 </script>
 {% endblock %}

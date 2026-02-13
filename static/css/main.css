@@ -13,6 +13,8 @@
     --border-radius: 8px;
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+    --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Reset and base styles */
@@ -80,7 +82,7 @@ body {
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
     border-radius: var(--border-radius);
-    transition: var(--transition);
+    transition: color 0.25s var(--ease-out), background 0.25s var(--ease-out), transform 0.2s var(--ease-out);
     position: relative;
 }
 
@@ -124,7 +126,7 @@ body {
     border-radius: var(--border-radius);
     text-decoration: none;
     font-weight: 500;
-    transition: var(--transition);
+    transition: all 0.25s var(--ease-out);
     cursor: pointer;
     border: none;
     font-size: 0.9rem;
@@ -138,6 +140,7 @@ body {
 .btn-primary:hover {
     background-color: var(--secondary-color);
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px -4px rgba(67, 97, 238, 0.25);
 }
 
 .btn-outline {
@@ -227,6 +230,11 @@ body {
     box-shadow: var(--box-shadow);
     overflow: hidden;
     margin-bottom: 1.5rem;
+    transition: box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+}
+
+.card:hover {
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
 }
 
 .card-header {
@@ -387,6 +395,12 @@ body {
     padding: 1.5rem;
     box-shadow: var(--box-shadow);
     text-align: center;
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-value {
